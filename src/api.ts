@@ -76,7 +76,7 @@ export class StagePlotiferApi {
 		return this.request('/api/screens')
 	}
 
-	updateScreen(id: string, patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId'>>): Promise<Screen> {
+	updateScreen(id: string, patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type'>>): Promise<Screen> {
 		return this.request(`/api/screens/${encodeURIComponent(id)}`, {
 			method: 'PUT',
 			body: JSON.stringify(patch),

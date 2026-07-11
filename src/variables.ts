@@ -1,5 +1,10 @@
 import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
 import type { ModuleState } from './state'
+import { SCREEN_TEMPLATE_CHOICES } from './types'
+
+function templateLabel(id: string): string {
+	return SCREEN_TEMPLATE_CHOICES.find((t) => t.id === id)?.label ?? id
+}
 
 export function getVariableDefinitions(state: ModuleState): CompanionVariableDefinition[] {
 	const defs: CompanionVariableDefinition[] = []
@@ -7,6 +12,7 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 	for (const screen of state.screens) {
 		defs.push({ variableId: `screen_${screen.id}_event_title`, name: `${screen.name}: current event title` })
 		defs.push({ variableId: `screen_${screen.id}_micboard_name`, name: `${screen.name}: current micboard name` })
+		defs.push({ variableId: `screen_${screen.id}_template`, name: `${screen.name}: current template` })
 	}
 
 	defs.push({ variableId: 'today_event_id', name: "Today's event: id" })
@@ -37,6 +43,7 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 	for (const screen of state.screens) {
 		values[`screen_${screen.id}_event_title`] = state.eventTitle(screen.currentEventId)
 		values[`screen_${screen.id}_micboard_name`] = state.micboardName(screen.micboardId)
+		values[`screen_${screen.id}_template`] = templateLabel(screen.type)
 	}
 
 	values['today_event_id'] = state.todaysEvent?.id ?? ''

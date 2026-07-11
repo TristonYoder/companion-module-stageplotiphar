@@ -1,6 +1,7 @@
 import type { CompanionFeedbackDefinitions } from '@companion-module/base'
 import type { ModuleState } from './state'
 import { combineRgb } from '@companion-module/base'
+import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 export function getFeedbackDefinitions(state: ModuleState): CompanionFeedbackDefinitions {
 	const screenChoices = () => state.screens.map((s) => ({ id: s.id, label: s.name }))
@@ -34,6 +35,20 @@ export function getFeedbackDefinitions(state: ModuleState): CompanionFeedbackDef
 			callback: (feedback) => {
 				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
 				return !!screen && screen.micboardId === feedback.options.micboardId
+			},
+		},
+
+		screenShowsTemplate: {
+			type: 'boolean',
+			name: 'Screen Shows Template',
+			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
+			options: [
+				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
+				{ type: 'dropdown', id: 'template', label: 'Template', choices: SCREEN_TEMPLATE_CHOICES, default: SCREEN_TEMPLATE_CHOICES[0].id },
+			],
+			callback: (feedback) => {
+				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
+				return !!screen && screen.type === feedback.options.template
 			},
 		},
 

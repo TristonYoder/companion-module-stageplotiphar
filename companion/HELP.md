@@ -14,6 +14,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 - **Set Screen Event** — point a screen at a specific event's stage plot
 - **Set Screen MicBoard** — point a screen at a specific micboard
+- **Set Screen Template** — switch what a screen renders: Stage Plot, MicBoard, Assignments, or Agario
 - **Advance Screen To Next/Previous Event** — move a screen forward/back through the event list (sorted by date) without opening a dropdown each time
 - **Send Event To All Screens** — push one event to every screen at once
 - **Send Today's Event To All Screens** — same, auto-detected by today's date
@@ -28,6 +29,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 - **Screen Shows Event** — true when a screen is currently displaying a given event
 - **Screen Shows MicBoard** — true when a screen is currently displaying a given micboard
+- **Screen Shows Template** — true when a screen is currently rendering a given template (Stage Plot/MicBoard/Assignments/Agario)
 - **Tracked Position Is Filled** — true when the tracked event has a person assigned to a given position ID
 - **Tracked Event Has Assignment With Status** — true when the tracked event has any role assignment with the given PCO status (confirmed/unconfirmed/declined) — use this to flag a missing musician before doors
 - **Event Sent To PCO** / **Tracked Event Sent To PCO** — true once that event's stage-plot attachment has been posted to PCO
@@ -35,7 +37,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 ## Variables
 
-- `screen_<id>_event_title`, `screen_<id>_micboard_name` — per screen
+- `screen_<id>_event_title`, `screen_<id>_micboard_name`, `screen_<id>_template` — per screen
 - `today_event_id`, `today_event_title` — whichever event is scheduled for today, blank if none
 - `tracked_event_title` — title of the tracked event
 - `tracked_event_unconfirmed_count`, `tracked_event_declined_count` — counts of role assignments by PCO status
@@ -45,4 +47,4 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 ## Presets
 
-Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, and per-screen status + next/previous buttons.
+Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, per-screen status + next/previous buttons, and one button per screen per template with a live highlight on whichever template is currently active.

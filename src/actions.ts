@@ -1,7 +1,7 @@
 import type { CompanionActionDefinitions } from '@companion-module/base'
 import type { StagePlotiferApi } from './api'
 import type { ModuleState } from './state'
-import type { StageEvent } from './types'
+import { SCREEN_TEMPLATE_CHOICES, type StageEvent } from './types'
 
 export interface ActionDeps {
 	api: StagePlotiferApi
@@ -48,6 +48,20 @@ export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): 
 				const screenId = String(event.options.screenId)
 				const micboardId = String(event.options.micboardId)
 				await api.updateScreen(screenId, { micboardId })
+				await refresh()
+			},
+		},
+
+		setScreenTemplate: {
+			name: 'Set Screen Template',
+			options: [
+				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
+				{ type: 'dropdown', id: 'template', label: 'Template', choices: SCREEN_TEMPLATE_CHOICES, default: SCREEN_TEMPLATE_CHOICES[0].id },
+			],
+			callback: async (event) => {
+				const screenId = String(event.options.screenId)
+				const template = event.options.template as (typeof SCREEN_TEMPLATE_CHOICES)[number]['id']
+				await api.updateScreen(screenId, { type: template })
 				await refresh()
 			},
 		},

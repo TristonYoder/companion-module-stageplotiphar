@@ -56,10 +56,19 @@ export interface MicBoard {
 	name: string
 }
 
+export type ScreenTemplate = 'stageplot' | 'micboard' | 'assignments' | 'agario'
+
+export const SCREEN_TEMPLATE_CHOICES: { id: ScreenTemplate; label: string }[] = [
+	{ id: 'stageplot', label: 'Stage Plot' },
+	{ id: 'micboard', label: 'MicBoard' },
+	{ id: 'assignments', label: 'Assignments' },
+	{ id: 'agario', label: 'Agario' },
+]
+
 export interface Screen {
 	id: string
 	name: string
-	type: 'stageplot' | 'micboard' | 'assignments' | 'agario'
+	type: ScreenTemplate
 	currentEventId?: string
 	micboardId?: string
 }
