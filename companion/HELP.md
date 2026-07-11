@@ -8,7 +8,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 2. In Companion, add this module, paste the key into **API Key**, and save.
    The **StagePlotifer URL** defaults to `https://plotiphar.com` — only change it if you self-host.
 3. Reopen the connection's settings. If your org has more than one venue, a **Venue** dropdown is now populated — pick one. With only one venue, it's selected automatically and there's nothing else to do.
-4. Companion will poll screens, events, micboards, roles, and hardware for the selected venue on the configured interval.
+4. Companion will poll screens, events, micboards, roles, and hardware for the selected venue on the configured interval. As soon as events load, the tracked event (used for `position_*`/`hardware_*` variables) is automatically set to the nearest event that hasn't already passed — no action needed unless you want to point it elsewhere.
 
 ## Actions
 
@@ -17,9 +17,9 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 - **Set Screen Template** — switch what a screen renders: Stage Plot, MicBoard, Assignments, or Agario
 - **Advance Screen To Next/Previous Event** — move a screen forward/back through the event list (sorted by date) without opening a dropdown each time
 - **Send Event To All Screens** — push one event to every screen at once
-- **Send Today's Event To All Screens** — same, auto-detected by today's date
+- **Send Nearest Upcoming Event To All Screens** — same, auto-detected as the soonest event that hasn't already passed
 - **Track Event For Position Variables** — choose which event's stage positions/hardware populate the `position_*`/`hardware_*` variables
-- **Track Today's Event For Position Variables** — same, auto-detected by today's date
+- **Track Nearest Upcoming Event For Position Variables** — same, auto-detected as the soonest event that hasn't already passed (this also happens automatically on load — see Setup)
 - **Track Next Event** / **Track Previous Event** — move the tracked event forward/back chronologically
 - **Send Event To PCO** — manually post an event's stage plot attachment to its PCO plan
 - **Send Tracked Event To PCO** — same, for whichever event is currently tracked
@@ -38,7 +38,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 ## Variables
 
 - `screen_<id>_event_title`, `screen_<id>_micboard_name`, `screen_<id>_template` — per screen
-- `today_event_id`, `today_event_title` — whichever event is scheduled for today, blank if none
+- `upcoming_event_id`, `upcoming_event_title` — the soonest event that hasn't already passed, blank if none
 - `tracked_event_title` — title of the tracked event
 - `tracked_event_unconfirmed_count`, `tracked_event_declined_count` — counts of role assignments by PCO status
 - `tracked_event_pco_sent` — `yes`/`no`, whether the tracked event's plot has been sent to PCO
@@ -47,6 +47,6 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 ## Presets
 
-Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, per-screen status + next/previous buttons, one button per screen per template with a live highlight on whichever template is currently active, one status button per stage position in the tracked event (highlights green when filled), and one status button per hardware item in the venue's catalog (highlights green when in use on the tracked event).
+Drag-in buttons for the most common operations: refresh, track/send the nearest upcoming event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, per-screen status + next/previous buttons, one button per screen per template with a live highlight on whichever template is currently active, one status button per stage position in the tracked event (highlights green when filled), and one status button per hardware item in the venue's catalog (highlights green when in use on the tracked event).
 
-Position and hardware buttons only appear once an event is being tracked (see "Track Event For Position Variables" / "Track Today's Event For Position Variables") — that's what determines which positions/hardware exist to show.
+Position and hardware buttons appear as soon as events load, since a tracked event is auto-selected on load (see Setup) — no manual tracking action needed unless you want a different event.

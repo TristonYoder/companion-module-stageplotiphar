@@ -18,21 +18,21 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			feedbacks: [],
 		},
 
-		trackTodaysEvent: {
+		trackNearestUpcomingEvent: {
 			type: 'button',
 			category: 'General',
-			name: "Track Today's Event",
-			style: { text: "Track\nToday's Event\n$(self:today_event_title)", size: '14', color: WHITE, bgcolor: BLUE },
-			steps: [{ down: [{ actionId: 'trackTodaysEvent', options: {} }], up: [] }],
+			name: 'Track Nearest Upcoming Event',
+			style: { text: 'Track Nearest\nUpcoming Event\n$(self:upcoming_event_title)', size: '14', color: WHITE, bgcolor: BLUE },
+			steps: [{ down: [{ actionId: 'trackNearestUpcomingEvent', options: {} }], up: [] }],
 			feedbacks: [],
 		},
 
-		sendTodaysEventToAllScreens: {
+		sendNearestUpcomingEventToAllScreens: {
 			type: 'button',
 			category: 'General',
-			name: "Send Today's Event To All Screens",
-			style: { text: "Send Today's\nEvent To\nAll Screens", size: '14', color: WHITE, bgcolor: BLUE },
-			steps: [{ down: [{ actionId: 'sendTodaysEventToAllScreens', options: {} }], up: [] }],
+			name: 'Send Nearest Upcoming Event To All Screens',
+			style: { text: 'Send Nearest\nUpcoming Event\nTo All Screens', size: '14', color: WHITE, bgcolor: BLUE },
+			steps: [{ down: [{ actionId: 'sendNearestUpcomingEventToAllScreens', options: {} }], up: [] }],
 			feedbacks: [],
 		},
 

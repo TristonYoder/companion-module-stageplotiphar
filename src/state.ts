@@ -52,6 +52,14 @@ export class ModuleState {
 		this.roles = roles
 		this.hardware = hardware
 
+		// First-load (and any-refresh-until-a-choice-is-made) default: track
+		// whichever event is soonest without having already passed. Once
+		// something else sets trackedEventId, this never overrides it.
+		if (!this.trackedEventId) {
+			const nearest = this.nearestUpcomingEvent
+			if (nearest) this.trackedEventId = nearest.id
+		}
+
 		if (this.trackedEventId) {
 			await this.refreshTrackedEventDetails()
 		}
@@ -67,14 +75,16 @@ export class ModuleState {
 		return this.trackedEventId ? this.events.find((e) => e.id === this.trackedEventId) : undefined
 	}
 
-	get todaysEvent(): StageEvent | undefined {
-		const today = todayDateString()
-		return this.events.find((e) => e.date === today)
-	}
-
 	// Events sorted chronologically — the basis for "next/previous" cycling.
 	get sortedEvents(): StageEvent[] {
 		return [...this.events].sort((a, b) => a.date.localeCompare(b.date))
+	}
+
+	// Soonest event that hasn't already passed (today counts as not-passed).
+	// Undefined if every known event is in the past.
+	get nearestUpcomingEvent(): StageEvent | undefined {
+		const today = todayDateString()
+		return this.sortedEvents.find((e) => e.date >= today)
 	}
 
 	trackedAssignmentCount(status: 'confirmed' | 'unconfirmed' | 'declined'): number {

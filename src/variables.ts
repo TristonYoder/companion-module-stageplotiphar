@@ -15,8 +15,8 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 		defs.push({ variableId: `screen_${screen.id}_template`, name: `${screen.name}: current template` })
 	}
 
-	defs.push({ variableId: 'today_event_id', name: "Today's event: id" })
-	defs.push({ variableId: 'today_event_title', name: "Today's event: title" })
+	defs.push({ variableId: 'upcoming_event_id', name: 'Nearest upcoming event: id' })
+	defs.push({ variableId: 'upcoming_event_title', name: 'Nearest upcoming event: title' })
 
 	defs.push({ variableId: 'tracked_event_title', name: 'Tracked event: title' })
 	defs.push({ variableId: 'tracked_event_unconfirmed_count', name: 'Tracked event: unconfirmed assignment count' })
@@ -45,8 +45,8 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 		values[`screen_${screen.id}_template`] = templateLabel(screen.type)
 	}
 
-	values['today_event_id'] = state.todaysEvent?.id ?? ''
-	values['today_event_title'] = state.todaysEvent?.title ?? ''
+	values['upcoming_event_id'] = state.nearestUpcomingEvent?.id ?? ''
+	values['upcoming_event_title'] = state.nearestUpcomingEvent?.title ?? ''
 
 	values['tracked_event_title'] = state.eventTitle(state.trackedEventId ?? undefined)
 	values['tracked_event_unconfirmed_count'] = state.trackedAssignmentCount('unconfirmed')

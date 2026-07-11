@@ -105,16 +105,16 @@ export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): 
 			},
 		},
 
-		sendTodaysEventToAllScreens: {
-			name: "Send Today's Event To All Screens",
+		sendNearestUpcomingEventToAllScreens: {
+			name: 'Send Nearest Upcoming Event To All Screens',
 			options: [],
 			callback: async () => {
-				const today = state.todaysEvent
-				if (!today) {
-					log('warn', "Send Today's Event To All Screens: no event scheduled for today")
+				const nearest = state.nearestUpcomingEvent
+				if (!nearest) {
+					log('warn', 'Send Nearest Upcoming Event To All Screens: no upcoming event found')
 					return
 				}
-				await api.sendEventToAllScreens(today.id)
+				await api.sendEventToAllScreens(nearest.id)
 				await refresh()
 			},
 		},
@@ -128,16 +128,16 @@ export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): 
 			},
 		},
 
-		trackTodaysEvent: {
-			name: "Track Today's Event For Position Variables",
+		trackNearestUpcomingEvent: {
+			name: 'Track Nearest Upcoming Event For Position Variables',
 			options: [],
 			callback: async () => {
-				const today = state.todaysEvent
-				if (!today) {
-					log('warn', "Track Today's Event: no event scheduled for today")
+				const nearest = state.nearestUpcomingEvent
+				if (!nearest) {
+					log('warn', 'Track Nearest Upcoming Event: no upcoming event found')
 					return
 				}
-				state.setTrackedEvent(today.id)
+				state.setTrackedEvent(nearest.id)
 				await refresh()
 			},
 		},
