@@ -1,0 +1,80 @@
+import type { ModuleConfig } from './config'
+import type { Layout, MicBoard, Role, Screen, StageEvent } from './types'
+
+export class ApiError extends Error {
+	constructor(
+		public status: number,
+		message: string
+	) {
+		super(message)
+	}
+}
+
+export class StagePlotiferApi {
+	constructor(private getConfig: () => ModuleConfig) {}
+
+	private get baseUrl(): string {
+		return this.getConfig().host.replace(/\/+$/, '')
+	}
+
+	private async request<T>(path: string, init?: RequestInit): Promise<T> {
+		const config = this.getConfig()
+		const url = new URL(this.baseUrl + path)
+		if (config.venueId) url.searchParams.set('venueId', config.venueId)
+
+		const res = await fetch(url, {
+			...init,
+			headers: {
+				Authorization: `Bearer ${config.apiKey}`,
+				'Content-Type': 'application/json',
+				...init?.headers,
+			},
+		})
+
+		if (!res.ok) {
+			const body = await res.text().catch(() => '')
+			throw new ApiError(res.status, `${init?.method ?? 'GET'} ${path} failed: ${res.status} ${body}`)
+		}
+
+		if (res.status === 204) return undefined as T
+		return (await res.json()) as T
+	}
+
+	listEvents(): Promise<StageEvent[]> {
+		return this.request('/api/events')
+	}
+
+	getEvent(id: string): Promise<StageEvent> {
+		return this.request(`/api/events/${encodeURIComponent(id)}`)
+	}
+
+	getLayout(id: string): Promise<Layout> {
+		return this.request(`/api/layouts/${encodeURIComponent(id)}`)
+	}
+
+	listRoles(): Promise<Role[]> {
+		return this.request('/api/roles')
+	}
+
+	listMicBoards(): Promise<MicBoard[]> {
+		return this.request('/api/micboards')
+	}
+
+	listScreens(): Promise<Screen[]> {
+		return this.request('/api/screens')
+	}
+
+	updateScreen(id: string, patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId'>>): Promise<Screen> {
+		return this.request(`/api/screens/${encodeURIComponent(id)}`, {
+			method: 'PUT',
+			body: JSON.stringify(patch),
+		})
+	}
+
+	sendEventToAllScreens(eventId: string): Promise<{ ok: boolean; count: number }> {
+		return this.request('/api/screens/send-all', {
+			method: 'POST',
+			body: JSON.stringify({ eventId }),
+		})
+	}
+}
