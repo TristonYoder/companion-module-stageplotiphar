@@ -74,6 +74,22 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 	}
 
 	for (const screen of state.screens) {
+		// Ordered as a pager: ◂ Prev | status | Next ▸ — meant to sit side by
+		// side on three adjacent Stream Deck buttons.
+		presets[`screenPrevious_${screen.id}`] = {
+			type: 'button',
+			category: 'Screens',
+			name: `${screen.name}: Previous Event`,
+			style: { text: '◂ Prev Event', size: '14', color: WHITE, bgcolor: BLUE },
+			steps: [
+				{
+					down: [{ actionId: 'advanceScreenEvent', options: { screenId: screen.id, direction: 'previous' } }],
+					up: [],
+				},
+			],
+			feedbacks: [],
+		}
+
 		presets[`screenStatus_${screen.id}`] = {
 			type: 'button',
 			category: 'Screens',
@@ -87,24 +103,10 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			type: 'button',
 			category: 'Screens',
 			name: `${screen.name}: Next Event`,
-			style: { text: `${screen.name}\nNext Event ▸`, size: '14', color: WHITE, bgcolor: BLUE },
+			style: { text: 'Next Event ▸', size: '14', color: WHITE, bgcolor: BLUE },
 			steps: [
 				{
 					down: [{ actionId: 'advanceScreenEvent', options: { screenId: screen.id, direction: 'next' } }],
-					up: [],
-				},
-			],
-			feedbacks: [],
-		}
-
-		presets[`screenPrevious_${screen.id}`] = {
-			type: 'button',
-			category: 'Screens',
-			name: `${screen.name}: Previous Event`,
-			style: { text: `◂ ${screen.name}\nPrevious Event`, size: '14', color: WHITE, bgcolor: BLUE },
-			steps: [
-				{
-					down: [{ actionId: 'advanceScreenEvent', options: { screenId: screen.id, direction: 'previous' } }],
 					up: [],
 				},
 			],
