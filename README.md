@@ -14,3 +14,9 @@ npm run build
 ```
 
 Then add this directory as a "developer module" path in Companion's module manager to test locally.
+
+## CI / Releases
+
+Every push and PR runs typecheck, `companion-module-check`, and a full `companion-module-build` via GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
+
+To cut a release: bump `version` in both `package.json` and `companion/manifest.json`, commit, then push a matching tag (e.g. `v1.1.0`). That triggers [.github/workflows/release.yml](.github/workflows/release.yml), which builds the module and attaches the packaged `.tgz` to a GitHub Release.
