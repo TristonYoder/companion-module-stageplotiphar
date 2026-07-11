@@ -6,7 +6,7 @@
 	"products": ["StagePlotifer"],
 	"keywords": ["stage plot", "venue management", "church production"],
 	"description": "Control and monitor StagePlotifer venues — switch screens between events/micboards, and read live stage-position assignments — via the StagePlotifer public REST API.",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"license": "MIT",
 	"repository": "git@github.com:TristonYoder/companion-module-stageplotiphar.git",
 	"bugs": "https://github.com/TristonYoder/companion-module-stageplotiphar/issues",
