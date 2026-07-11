@@ -1,5 +1,7 @@
-import type { ModuleConfig } from './config'
-import type { Layout, MicBoard, Role, Screen, StageEvent } from './types'
+import type { ModuleConfig, ModuleSecrets } from './config'
+import type { Layout, MicBoard, Role, Screen, StageEvent, Venue } from './types'
+
+export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 
 export class ApiError extends Error {
 	constructor(
@@ -11,7 +13,7 @@ export class ApiError extends Error {
 }
 
 export class StagePlotiferApi {
-	constructor(private getConfig: () => ModuleConfig) {}
+	constructor(private getConfig: () => ResolvedApiConfig) {}
 
 	private get baseUrl(): string {
 		return this.getConfig().host.replace(/\/+$/, '')
@@ -38,6 +40,12 @@ export class StagePlotiferApi {
 
 		if (res.status === 204) return undefined as T
 		return (await res.json()) as T
+	}
+
+	// Org-scoped, not venue-scoped — safe to call before a venue is chosen.
+	async listVenues(): Promise<Venue[]> {
+		const res = await this.request<{ venues: Venue[] }>('/api/venues')
+		return res.venues
 	}
 
 	listEvents(): Promise<StageEvent[]> {

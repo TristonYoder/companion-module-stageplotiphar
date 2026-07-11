@@ -38,6 +38,11 @@ export interface StageEvent {
 	positionOverrides: PositionOverride[]
 }
 
+export interface Venue {
+	id: string
+	name: string
+}
+
 export interface MicBoard {
 	id: string
 	name: string

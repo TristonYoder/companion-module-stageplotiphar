@@ -1,25 +1,32 @@
-import type { SomeCompanionConfigField } from '@companion-module/base'
+import type { DropdownChoice, SomeCompanionConfigField } from '@companion-module/base'
 
 export interface ModuleConfig {
 	host: string
-	apiKey: string
 	venueId?: string
 	pollInterval: number
 }
 
-export function getConfigFields(): SomeCompanionConfigField[] {
+// Delivered separately from ModuleConfig by the Companion host (see the
+// 'secret-text' field type below) — never persisted alongside plain config.
+export interface ModuleSecrets {
+	apiKey: string
+}
+
+const NO_VENUES_YET: DropdownChoice[] = [{ id: '', label: 'Save your API key first, then reopen this panel' }]
+
+export function getConfigFields(venueChoices: DropdownChoice[]): SomeCompanionConfigField[] {
 	return [
 		{
 			type: 'textinput',
 			id: 'host',
 			label: 'StagePlotifer URL',
-			tooltip: 'Base URL of your StagePlotifer instance, e.g. https://plotiphar.example.com',
+			tooltip: 'Base URL of your StagePlotifer instance. Change this if you self-host instead of using plotiphar.com.',
 			width: 8,
-			default: '',
+			default: 'https://plotiphar.com',
 			required: true,
 		},
 		{
-			type: 'textinput',
+			type: 'secret-text',
 			id: 'apiKey',
 			label: 'API Key',
 			tooltip: 'Created under Settings → API Keys in StagePlotifer',
@@ -28,12 +35,14 @@ export function getConfigFields(): SomeCompanionConfigField[] {
 			required: true,
 		},
 		{
-			type: 'textinput',
+			type: 'dropdown',
 			id: 'venueId',
-			label: 'Venue ID (optional)',
-			tooltip: 'Leave blank to use the org default venue. Required if your org has more than one venue.',
-			width: 6,
+			label: 'Venue',
+			tooltip: 'Populated after the API key above is saved. Auto-selected if your org has only one venue.',
+			width: 8,
 			default: '',
+			choices: venueChoices.length > 0 ? venueChoices : NO_VENUES_YET,
+			allowCustom: false,
 		},
 		{
 			type: 'number',

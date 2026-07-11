@@ -5,11 +5,10 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 ## Setup
 
 1. In StagePlotifer, go to **Settings → API Keys** and create a key.
-2. In Companion, add this module and set:
-   - **StagePlotifer URL** — base URL of your instance
-   - **API Key** — the key from step 1
-   - **Venue ID** — only needed if your org has more than one venue
-3. Companion will poll screens, events, micboards, and roles on the configured interval.
+2. In Companion, add this module, paste the key into **API Key**, and save.
+   The **StagePlotifer URL** defaults to `https://plotiphar.com` — only change it if you self-host.
+3. Reopen the connection's settings. If your org has more than one venue, a **Venue** dropdown is now populated — pick one. With only one venue, it's selected automatically and there's nothing else to do.
+4. Companion will poll screens, events, micboards, and roles for the selected venue on the configured interval.
 
 ## Actions
 

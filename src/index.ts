@@ -1,20 +1,29 @@
-import { InstanceBase, InstanceStatus, runEntrypoint, type SomeCompanionConfigField } from '@companion-module/base'
+import {
+	InstanceBase,
+	InstanceStatus,
+	runEntrypoint,
+	type DropdownChoice,
+	type SomeCompanionConfigField,
+} from '@companion-module/base'
 import { StagePlotiferApi, ApiError } from './api'
-import { getConfigFields, type ModuleConfig } from './config'
+import { getConfigFields, type ModuleConfig, type ModuleSecrets } from './config'
 import { getActionDefinitions } from './actions'
 import { getFeedbackDefinitions } from './feedbacks'
 import { getVariableDefinitions, getVariableValues } from './variables'
 import { ModuleState } from './state'
 
-class StagePlotiferInstance extends InstanceBase<ModuleConfig> {
+class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 	private config!: ModuleConfig
+	private secrets!: ModuleSecrets
 	private api!: StagePlotiferApi
 	private state!: ModuleState
 	private pollTimer: ReturnType<typeof setInterval> | undefined
+	private venueChoices: DropdownChoice[] = []
 
-	async init(config: ModuleConfig): Promise<void> {
+	async init(config: ModuleConfig, _isFirstInit: boolean, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
-		this.api = new StagePlotiferApi(() => this.config)
+		this.secrets = secrets
+		this.api = new StagePlotiferApi(() => ({ ...this.config, ...this.secrets }))
 		this.state = new ModuleState(this.api)
 
 		this.setActionDefinitions(
@@ -36,15 +45,16 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig> {
 		this.stopPolling()
 	}
 
-	async configUpdated(config: ModuleConfig): Promise<void> {
+	async configUpdated(config: ModuleConfig, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
+		this.secrets = secrets
 		this.stopPolling()
 		await this.refresh()
 		this.startPolling()
 	}
 
 	getConfigFields(): SomeCompanionConfigField[] {
-		return getConfigFields()
+		return getConfigFields(this.venueChoices)
 	}
 
 	private startPolling(): void {
@@ -61,13 +71,27 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig> {
 		}
 	}
 
+	// Org-scoped, so this works before a venue is chosen — populates the config
+	// panel's Venue dropdown, and auto-picks it for the user when there's only
+	// one venue to choose from (the common case).
+	private async refreshVenues(): Promise<void> {
+		const venues = await this.api.listVenues()
+		this.venueChoices = venues.map((v) => ({ id: v.id, label: v.name }))
+
+		if (!this.config.venueId && venues.length === 1) {
+			this.config.venueId = venues[0].id
+			this.saveConfig(this.config, undefined)
+		}
+	}
+
 	private async refresh(): Promise<void> {
-		if (!this.config.host || !this.config.apiKey) {
+		if (!this.config.host || !this.secrets.apiKey) {
 			this.updateStatus(InstanceStatus.BadConfig, 'Host and API key are required')
 			return
 		}
 
 		try {
+			await this.refreshVenues()
 			await this.state.refreshAll()
 			this.updateStatus(InstanceStatus.Ok)
 			this.setActionDefinitions(
