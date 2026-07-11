@@ -12,7 +12,7 @@ export class ApiError extends Error {
 	}
 }
 
-export class StagePlotiferApi {
+export class StagePlotipharApi {
 	// Keyed by the Person.image value (filename or URL) — photos rarely
 	// change mid-show, and re-fetching/re-encoding on every feedback
 	// evaluation would be wasteful.

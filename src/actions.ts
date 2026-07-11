@@ -1,10 +1,10 @@
 import type { CompanionActionDefinitions } from '@companion-module/base'
-import type { StagePlotiferApi } from './api'
+import type { StagePlotipharApi } from './api'
 import type { ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES, type StageEvent } from './types'
 
 export interface ActionDeps {
-	api: StagePlotiferApi
+	api: StagePlotipharApi
 	state: ModuleState
 	refresh: () => Promise<void>
 	log: (level: 'info' | 'warn' | 'error', message: string) => void

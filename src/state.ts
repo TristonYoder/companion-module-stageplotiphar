@@ -1,4 +1,4 @@
-import type { StagePlotiferApi } from './api'
+import type { StagePlotipharApi } from './api'
 import type { Hardware, HardwareItem, Layout, MicBoard, Person, Role, Screen, StageEvent } from './types'
 
 export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): string {
@@ -37,7 +37,7 @@ export class ModuleState {
 	trackedPositions: ResolvedPosition[] = []
 	trackedHardwareAssignments: Record<string, string> = {}
 
-	constructor(private api: StagePlotiferApi) {}
+	constructor(private api: StagePlotipharApi) {}
 
 	async refreshAll(): Promise<void> {
 		const [screens, events, micboards, roles, hardware, people] = await Promise.all([

@@ -1,10 +1,10 @@
 import type { CompanionFeedbackDefinitions } from '@companion-module/base'
-import type { StagePlotiferApi } from './api'
+import type { StagePlotipharApi } from './api'
 import type { ModuleState } from './state'
 import { combineRgb } from '@companion-module/base'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
-export function getFeedbackDefinitions(state: ModuleState, api: StagePlotiferApi): CompanionFeedbackDefinitions {
+export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharApi): CompanionFeedbackDefinitions {
 	const screenChoices = () => state.screens.map((s) => ({ id: s.id, label: s.name }))
 	const eventChoices = () => state.events.map((e) => ({ id: e.id, label: `${e.date} — ${e.title}` }))
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
@@ -125,7 +125,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotiferApi
 			type: 'advanced',
 			name: 'Person Image (Full Screen)',
 			description:
-				"Fills the whole button with a person's photo. Enter a name directly, or a variable expression like $(stageplotifer:position_xxx_name) — Companion resolves it before this runs either way.",
+				"Fills the whole button with a person's photo. Enter a name directly, or a variable expression like $(stageplotiphar:position_xxx_name) — Companion resolves it before this runs either way.",
 			options: [
 				{
 					type: 'textinput',

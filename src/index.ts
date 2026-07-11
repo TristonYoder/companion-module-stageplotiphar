@@ -5,7 +5,7 @@ import {
 	type DropdownChoice,
 	type SomeCompanionConfigField,
 } from '@companion-module/base'
-import { StagePlotiferApi, ApiError } from './api'
+import { StagePlotipharApi, ApiError } from './api'
 import { getConfigFields, type ModuleConfig, type ModuleSecrets } from './config'
 import { getActionDefinitions } from './actions'
 import { getFeedbackDefinitions } from './feedbacks'
@@ -13,10 +13,10 @@ import { getVariableDefinitions, getVariableValues } from './variables'
 import { getPresetDefinitions } from './presets'
 import { ModuleState } from './state'
 
-class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
+class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 	private config!: ModuleConfig
 	private secrets!: ModuleSecrets
-	private api!: StagePlotiferApi
+	private api!: StagePlotipharApi
 	private state!: ModuleState
 	private pollTimer: ReturnType<typeof setInterval> | undefined
 	private venueChoices: DropdownChoice[] = []
@@ -24,7 +24,7 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 	async init(config: ModuleConfig, _isFirstInit: boolean, secrets: ModuleSecrets): Promise<void> {
 		this.config = config
 		this.secrets = secrets
-		this.api = new StagePlotiferApi(() => ({ ...this.config, ...this.secrets }))
+		this.api = new StagePlotipharApi(() => ({ ...this.config, ...this.secrets }))
 		this.state = new ModuleState(this.api)
 
 		this.setActionDefinitions(
@@ -124,4 +124,4 @@ function errMessage(err: unknown): string {
 	return err instanceof Error ? err.message : String(err)
 }
 
-runEntrypoint(StagePlotiferInstance, [])
+runEntrypoint(StagePlotipharInstance, [])

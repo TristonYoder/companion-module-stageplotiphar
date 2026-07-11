@@ -1,12 +1,12 @@
-# StagePlotifer
+# StagePlotiphar
 
-Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue via its REST API.
+Connects Bitfocus Companion to a [StagePlotiphar](https://plotiphar.com) venue via its REST API.
 
 ## Setup
 
-1. In StagePlotifer, go to **Settings → API Keys** and create a key.
+1. In StagePlotiphar, go to **Settings → API Keys** and create a key.
 2. In Companion, add this module, paste the key into **API Key**, and save.
-   The **StagePlotifer URL** defaults to `https://plotiphar.com` — only change it if you self-host.
+   The **StagePlotiphar URL** defaults to `https://plotiphar.com` — only change it if you self-host.
 3. Reopen the connection's settings. If your org has more than one venue, a **Venue** dropdown is now populated — pick one. With only one venue, it's selected automatically and there's nothing else to do.
 4. Companion will poll screens, events, micboards, roles, and hardware for the selected venue on the configured interval. As soon as events load, the tracked event (used for `position_*`/`hardware_*` variables) is automatically set to the nearest event that hasn't already passed — no action needed unless you want to point it elsewhere.
 
@@ -34,7 +34,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 - **Tracked Event Has Assignment With Status** — true when the tracked event has any role assignment with the given PCO status (confirmed/unconfirmed/declined) — use this to flag a missing musician before doors
 - **Event Sent To PCO** / **Tracked Event Sent To PCO** — true once that event's stage-plot attachment has been posted to PCO
 - **Hardware Slot Assigned (Tracked Event)** — true when a given hardware type/number is in use somewhere in the tracked event (via role default hardware or a per-assignment override)
-- **Person Image (Full Screen)** — fills the whole button with a person's photo. Type a name directly, or a variable expression (e.g. `$(stageplotifer:position_xxx_name)`) — Companion resolves variables before this feedback runs either way, so both work identically. Does nothing if the name doesn't match a known person or that person has no photo (local upload or synced PCO avatar).
+- **Person Image (Full Screen)** — fills the whole button with a person's photo. Type a name directly, or a variable expression (e.g. `$(stageplotiphar:position_xxx_name)`) — Companion resolves variables before this feedback runs either way, so both work identically. Does nothing if the name doesn't match a known person or that person has no photo (local upload or synced PCO avatar).
 
 ## Variables
 
