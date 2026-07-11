@@ -91,3 +91,8 @@ export interface Hardware {
 	types: HardwareTypeDef[]
 	items: HardwareItem[]
 }
+
+export interface Person {
+	name: string
+	image?: string | null
+}

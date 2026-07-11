@@ -35,7 +35,7 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 				log: (level, message) => this.log(level, message),
 			})
 		)
-		this.setFeedbackDefinitions(getFeedbackDefinitions(this.state))
+		this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
 		this.setVariableDefinitions(getVariableDefinitions(this.state))
 		this.setPresetDefinitions(getPresetDefinitions(this.state))
 
@@ -104,7 +104,7 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 					log: (level, message) => this.log(level, message),
 				})
 			)
-			this.setFeedbackDefinitions(getFeedbackDefinitions(this.state))
+			this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
 			this.setVariableDefinitions(getVariableDefinitions(this.state))
 			this.setVariableValues(getVariableValues(this.state))
 			this.setPresetDefinitions(getPresetDefinitions(this.state))

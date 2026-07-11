@@ -1,9 +1,10 @@
 import type { CompanionFeedbackDefinitions } from '@companion-module/base'
+import type { StagePlotiferApi } from './api'
 import type { ModuleState } from './state'
 import { combineRgb } from '@companion-module/base'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
-export function getFeedbackDefinitions(state: ModuleState): CompanionFeedbackDefinitions {
+export function getFeedbackDefinitions(state: ModuleState, api: StagePlotiferApi): CompanionFeedbackDefinitions {
 	const screenChoices = () => state.screens.map((s) => ({ id: s.id, label: s.name }))
 	const eventChoices = () => state.events.map((e) => ({ id: e.id, label: `${e.date} — ${e.title}` }))
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
@@ -117,6 +118,32 @@ export function getFeedbackDefinitions(state: ModuleState): CompanionFeedbackDef
 				const typeId = String(feedback.options.typeId)
 				const num = Number(feedback.options.num)
 				return !!state.hardwareAssignedTo(typeId, num)
+			},
+		},
+
+		personImage: {
+			type: 'advanced',
+			name: 'Person Image (Full Screen)',
+			description:
+				"Fills the whole button with a person's photo. Enter a name directly, or a variable expression like $(stageplotifer:position_xxx_name) — Companion resolves it before this runs either way.",
+			options: [
+				{
+					type: 'textinput',
+					id: 'name',
+					label: 'Person Name',
+					default: '',
+					useVariables: true,
+				},
+			],
+			callback: async (feedback) => {
+				const name = String(feedback.options.name ?? '')
+				const person = state.findPerson(name)
+				if (!person?.image) return {}
+
+				const dataUri = await api.getPersonImageDataUri(person.image)
+				if (!dataUri) return {}
+
+				return { png64: dataUri, pngalignment: 'center:center' }
 			},
 		},
 	}

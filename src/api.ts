@@ -1,5 +1,5 @@
 import type { ModuleConfig, ModuleSecrets } from './config'
-import type { Hardware, Layout, MicBoard, Role, Screen, StageEvent, Venue } from './types'
+import type { Hardware, Layout, MicBoard, Person, Role, Screen, StageEvent, Venue } from './types'
 
 export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 
@@ -13,6 +13,11 @@ export class ApiError extends Error {
 }
 
 export class StagePlotiferApi {
+	// Keyed by the Person.image value (filename or URL) — photos rarely
+	// change mid-show, and re-fetching/re-encoding on every feedback
+	// evaluation would be wasteful.
+	private imageDataUriCache = new Map<string, string>()
+
 	constructor(private getConfig: () => ResolvedApiConfig) {}
 
 	private get baseUrl(): string {
@@ -70,6 +75,37 @@ export class StagePlotiferApi {
 
 	getHardware(): Promise<Hardware> {
 		return this.request('/api/hardware')
+	}
+
+	async listPeople(): Promise<Record<string, Person>> {
+		return this.request('/api/people')
+	}
+
+	// Person.image is either a local filename (served by /api/images, which
+	// requires our auth header) or a full http(s) URL from a synced PCO
+	// avatar (fetched as-is, no auth needed or wanted for an external host).
+	async getPersonImageDataUri(image: string): Promise<string | null> {
+		const cached = this.imageDataUriCache.get(image)
+		if (cached) return cached
+
+		const isExternal = /^https?:\/\//i.test(image)
+		const url = isExternal ? image : `${this.baseUrl}/api/images/${encodeURIComponent(image)}`
+		const config = this.getConfig()
+
+		try {
+			const res = await fetch(url, {
+				headers: isExternal ? {} : { Authorization: `Bearer ${config.apiKey}` },
+			})
+			if (!res.ok) return null
+
+			const buf = await res.arrayBuffer()
+			const mime = res.headers.get('content-type') || 'image/png'
+			const dataUri = `data:${mime};base64,${Buffer.from(buf).toString('base64')}`
+			this.imageDataUriCache.set(image, dataUri)
+			return dataUri
+		} catch {
+			return null
+		}
 	}
 
 	listScreens(): Promise<Screen[]> {

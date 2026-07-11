@@ -1,5 +1,5 @@
 import type { StagePlotiferApi } from './api'
-import type { Hardware, HardwareItem, Layout, MicBoard, Role, Screen, StageEvent } from './types'
+import type { Hardware, HardwareItem, Layout, MicBoard, Person, Role, Screen, StageEvent } from './types'
 
 export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): string {
 	const type = hardware.types.find((t) => t.id === item.typeId)
@@ -28,6 +28,7 @@ export class ModuleState {
 	micboards: MicBoard[] = []
 	roles: Role[] = []
 	hardware: Hardware = { types: [], items: [] }
+	people: Record<string, Person> = {}
 
 	// Positions/hardware for whichever event is currently tracked for
 	// variables (see trackedEventId). Kept separate from `events` because
@@ -39,18 +40,20 @@ export class ModuleState {
 	constructor(private api: StagePlotiferApi) {}
 
 	async refreshAll(): Promise<void> {
-		const [screens, events, micboards, roles, hardware] = await Promise.all([
+		const [screens, events, micboards, roles, hardware, people] = await Promise.all([
 			this.api.listScreens(),
 			this.api.listEvents(),
 			this.api.listMicBoards(),
 			this.api.listRoles(),
 			this.api.getHardware(),
+			this.api.listPeople(),
 		])
 		this.screens = screens
 		this.events = events
 		this.micboards = micboards
 		this.roles = roles
 		this.hardware = hardware
+		this.people = people
 
 		// First-load (and any-refresh-until-a-choice-is-made) default: track
 		// whichever event is soonest without having already passed. Once
@@ -143,5 +146,13 @@ export class ModuleState {
 	micboardName(micboardId: string | undefined): string {
 		if (!micboardId) return ''
 		return this.micboards.find((m) => m.id === micboardId)?.name ?? micboardId
+	}
+
+	findPerson(name: string): Person | undefined {
+		const trimmed = name.trim()
+		if (!trimmed) return undefined
+		if (this.people[trimmed]) return this.people[trimmed]
+		const lower = trimmed.toLowerCase()
+		return Object.values(this.people).find((p) => p.name.toLowerCase() === lower)
 	}
 }

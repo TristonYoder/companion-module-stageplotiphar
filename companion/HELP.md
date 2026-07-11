@@ -34,6 +34,7 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 - **Tracked Event Has Assignment With Status** — true when the tracked event has any role assignment with the given PCO status (confirmed/unconfirmed/declined) — use this to flag a missing musician before doors
 - **Event Sent To PCO** / **Tracked Event Sent To PCO** — true once that event's stage-plot attachment has been posted to PCO
 - **Hardware Slot Assigned (Tracked Event)** — true when a given hardware type/number is in use somewhere in the tracked event (via role default hardware or a per-assignment override)
+- **Person Image (Full Screen)** — fills the whole button with a person's photo. Type a name directly, or a variable expression (e.g. `$(stageplotifer:position_xxx_name)`) — Companion resolves variables before this feedback runs either way, so both work identically. Does nothing if the name doesn't match a known person or that person has no photo (local upload or synced PCO avatar).
 
 ## Variables
 
