@@ -140,7 +140,7 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 		presets[`position_${pos.positionId}`] = {
 			type: 'button',
 			category: 'Positions',
-			name: `Position: ${pos.roleName}`,
+			name: `Role: ${pos.roleName}`,
 			style: {
 				text: `${pos.roleName}\n$(self:position_${pos.positionId}_name)`,
 				size: '14',
@@ -149,10 +149,18 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			},
 			steps: [{ down: [{ actionId: 'refreshNow', options: {} }], up: [] }],
 			feedbacks: [
+				// Base state: green + role/name text once the position is filled.
 				{
 					feedbackId: 'trackedPositionFilled',
 					options: { positionId: pos.positionId },
 					style: { bgcolor: GREEN },
+				},
+				// Layered on top: if that person has a photo, it replaces the
+				// green/text entirely and fills the button. Falls through to
+				// the state above when there's no photo (or no one assigned).
+				{
+					feedbackId: 'personImage',
+					options: { name: `$(self:position_${pos.positionId}_name)` },
 				},
 			],
 		}

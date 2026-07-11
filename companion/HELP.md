@@ -48,7 +48,9 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 ## Presets
 
-Drag-in buttons for the most common operations: refresh, track/send the nearest upcoming event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, one button per screen per template with a live highlight on whichever template is currently active, one status button per stage position in the tracked event (highlights green when filled), and one status button per hardware item in the venue's catalog (highlights green when in use on the tracked event).
+Drag-in buttons for the most common operations: refresh, track/send the nearest upcoming event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, one button per screen per template with a live highlight on whichever template is currently active, one "Role" button per stage position in the tracked event, and one status button per hardware item in the venue's catalog (highlights green when in use on the tracked event).
+
+Each Role button layers the **Person Image** feedback over the fill-status one: filled with no photo shows green + role/name text (the old behavior), filled with a photo replaces that entirely with the person's photo filling the button, and empty stays default.
 
 Per-screen buttons are ordered as a pager — **◂ Prev Event | [Screen Name / current event] | Next Event ▸** — meant to be dragged onto three adjacent Stream Deck keys in that order.
 
