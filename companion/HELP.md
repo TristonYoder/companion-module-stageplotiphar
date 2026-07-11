@@ -8,14 +8,20 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 2. In Companion, add this module, paste the key into **API Key**, and save.
    The **StagePlotifer URL** defaults to `https://plotiphar.com` — only change it if you self-host.
 3. Reopen the connection's settings. If your org has more than one venue, a **Venue** dropdown is now populated — pick one. With only one venue, it's selected automatically and there's nothing else to do.
-4. Companion will poll screens, events, micboards, and roles for the selected venue on the configured interval.
+4. Companion will poll screens, events, micboards, roles, and hardware for the selected venue on the configured interval.
 
 ## Actions
 
 - **Set Screen Event** — point a screen at a specific event's stage plot
 - **Set Screen MicBoard** — point a screen at a specific micboard
+- **Advance Screen To Next/Previous Event** — move a screen forward/back through the event list (sorted by date) without opening a dropdown each time
 - **Send Event To All Screens** — push one event to every screen at once
-- **Track Event For Position Variables** — choose which event's stage positions populate `position_*` variables
+- **Send Today's Event To All Screens** — same, auto-detected by today's date
+- **Track Event For Position Variables** — choose which event's stage positions/hardware populate the `position_*`/`hardware_*` variables
+- **Track Today's Event For Position Variables** — same, auto-detected by today's date
+- **Track Next Event** / **Track Previous Event** — move the tracked event forward/back chronologically
+- **Send Event To PCO** — manually post an event's stage plot attachment to its PCO plan
+- **Send Tracked Event To PCO** — same, for whichever event is currently tracked
 - **Refresh Data Now** — force an immediate poll
 
 ## Feedbacks
@@ -23,9 +29,20 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 - **Screen Shows Event** — true when a screen is currently displaying a given event
 - **Screen Shows MicBoard** — true when a screen is currently displaying a given micboard
 - **Tracked Position Is Filled** — true when the tracked event has a person assigned to a given position ID
+- **Tracked Event Has Assignment With Status** — true when the tracked event has any role assignment with the given PCO status (confirmed/unconfirmed/declined) — use this to flag a missing musician before doors
+- **Event Sent To PCO** / **Tracked Event Sent To PCO** — true once that event's stage-plot attachment has been posted to PCO
+- **Hardware Slot Assigned (Tracked Event)** — true when a given hardware type/number is in use somewhere in the tracked event (via role default hardware or a per-assignment override)
 
 ## Variables
 
 - `screen_<id>_event_title`, `screen_<id>_micboard_name` — per screen
-- `tracked_event_title` — title of the event chosen via "Track Event For Position Variables"
+- `today_event_id`, `today_event_title` — whichever event is scheduled for today, blank if none
+- `tracked_event_title` — title of the tracked event
+- `tracked_event_unconfirmed_count`, `tracked_event_declined_count` — counts of role assignments by PCO status
+- `tracked_event_pco_sent` — `yes`/`no`, whether the tracked event's plot has been sent to PCO
 - `position_<id>_role`, `position_<id>_name` — per stage position in the tracked event's layout, resolved through that event's role assignments and position overrides
+- `hardware_<id>_assigned_to` — per hardware item in the venue's catalog, the person using it in the tracked event (via role default hardware or a per-assignment override), blank if unused
+
+## Presets
+
+Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, and per-screen status + next/previous buttons.

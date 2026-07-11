@@ -1,5 +1,5 @@
 import type { ModuleConfig, ModuleSecrets } from './config'
-import type { Layout, MicBoard, Role, Screen, StageEvent, Venue } from './types'
+import type { Hardware, Layout, MicBoard, Role, Screen, StageEvent, Venue } from './types'
 
 export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 
@@ -68,6 +68,10 @@ export class StagePlotiferApi {
 		return this.request('/api/micboards')
 	}
 
+	getHardware(): Promise<Hardware> {
+		return this.request('/api/hardware')
+	}
+
 	listScreens(): Promise<Screen[]> {
 		return this.request('/api/screens')
 	}
@@ -83,6 +87,12 @@ export class StagePlotiferApi {
 		return this.request('/api/screens/send-all', {
 			method: 'POST',
 			body: JSON.stringify({ eventId }),
+		})
+	}
+
+	sendEventToPco(eventId: string): Promise<{ ok: boolean; url: string }> {
+		return this.request(`/api/events/${encodeURIComponent(eventId)}/send-to-pco`, {
+			method: 'POST',
 		})
 	}
 }

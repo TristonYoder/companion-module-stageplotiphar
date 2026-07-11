@@ -10,6 +10,7 @@ import { getConfigFields, type ModuleConfig, type ModuleSecrets } from './config
 import { getActionDefinitions } from './actions'
 import { getFeedbackDefinitions } from './feedbacks'
 import { getVariableDefinitions, getVariableValues } from './variables'
+import { getPresetDefinitions } from './presets'
 import { ModuleState } from './state'
 
 class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
@@ -36,6 +37,7 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 		)
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this.state))
 		this.setVariableDefinitions(getVariableDefinitions(this.state))
+		this.setPresetDefinitions(getPresetDefinitions(this.state))
 
 		await this.refresh()
 		this.startPolling()
@@ -105,6 +107,7 @@ class StagePlotiferInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 			this.setFeedbackDefinitions(getFeedbackDefinitions(this.state))
 			this.setVariableDefinitions(getVariableDefinitions(this.state))
 			this.setVariableValues(getVariableValues(this.state))
+			this.setPresetDefinitions(getPresetDefinitions(this.state))
 			this.checkFeedbacks()
 		} catch (err) {
 			if (err instanceof ApiError && err.status === 401) {

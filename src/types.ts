@@ -11,14 +11,21 @@ export interface Layout {
 	positions: StagePosition[]
 }
 
+export interface HardwareSlotAssignment {
+	typeId: string
+	num: number
+}
+
 export interface Role {
 	id: string
 	name: string
+	defaultHardware: HardwareSlotAssignment[]
 }
 
 export interface RoleAssignment {
 	roleId: string
 	personName: string
+	hardwareOverride?: HardwareSlotAssignment[]
 	pcoStatus?: 'confirmed' | 'unconfirmed' | 'declined'
 }
 
@@ -36,6 +43,7 @@ export interface StageEvent {
 	layoutId: string
 	roleAssignments: RoleAssignment[]
 	positionOverrides: PositionOverride[]
+	pcoAttachmentSentAt?: string
 }
 
 export interface Venue {
@@ -54,4 +62,23 @@ export interface Screen {
 	type: 'stageplot' | 'micboard' | 'assignments' | 'agario'
 	currentEventId?: string
 	micboardId?: string
+}
+
+export interface HardwareTypeDef {
+	id: string
+	name: string
+	color?: string
+}
+
+export interface HardwareItem {
+	id: string
+	num: number
+	typeId: string
+	label?: string
+	notes?: string
+}
+
+export interface Hardware {
+	types: HardwareTypeDef[]
+	items: HardwareItem[]
 }

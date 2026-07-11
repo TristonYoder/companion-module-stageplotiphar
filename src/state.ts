@@ -1,5 +1,5 @@
 import type { StagePlotiferApi } from './api'
-import type { Layout, MicBoard, Role, Screen, StageEvent } from './types'
+import type { Hardware, Layout, MicBoard, Role, Screen, StageEvent } from './types'
 
 export interface ResolvedPosition {
 	positionId: string
@@ -8,49 +8,94 @@ export interface ResolvedPosition {
 	personName: string | null
 }
 
+function hardwareKey(typeId: string, num: number): string {
+	return `${typeId}:${num}`
+}
+
+function todayDateString(): string {
+	const now = new Date()
+	return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+}
+
 export class ModuleState {
 	screens: Screen[] = []
 	events: StageEvent[] = []
 	micboards: MicBoard[] = []
 	roles: Role[] = []
+	hardware: Hardware = { types: [], items: [] }
 
-	// Positions for whichever event is currently tracked for variables (see
-	// trackedEventId). Kept separate from `events` because it requires an
-	// extra layout fetch per refresh.
+	// Positions/hardware for whichever event is currently tracked for
+	// variables (see trackedEventId). Kept separate from `events` because
+	// resolving positions requires an extra layout fetch per refresh.
 	trackedEventId: string | null = null
 	trackedPositions: ResolvedPosition[] = []
+	trackedHardwareAssignments: Record<string, string> = {}
 
 	constructor(private api: StagePlotiferApi) {}
 
 	async refreshAll(): Promise<void> {
-		const [screens, events, micboards, roles] = await Promise.all([
+		const [screens, events, micboards, roles, hardware] = await Promise.all([
 			this.api.listScreens(),
 			this.api.listEvents(),
 			this.api.listMicBoards(),
 			this.api.listRoles(),
+			this.api.getHardware(),
 		])
 		this.screens = screens
 		this.events = events
 		this.micboards = micboards
 		this.roles = roles
+		this.hardware = hardware
 
 		if (this.trackedEventId) {
-			await this.refreshTrackedPositions()
+			await this.refreshTrackedEventDetails()
 		}
 	}
 
 	setTrackedEvent(eventId: string | null): void {
 		this.trackedEventId = eventId
 		this.trackedPositions = []
+		this.trackedHardwareAssignments = {}
 	}
 
-	async refreshTrackedPositions(): Promise<void> {
+	get trackedEvent(): StageEvent | undefined {
+		return this.trackedEventId ? this.events.find((e) => e.id === this.trackedEventId) : undefined
+	}
+
+	get todaysEvent(): StageEvent | undefined {
+		const today = todayDateString()
+		return this.events.find((e) => e.date === today)
+	}
+
+	// Events sorted chronologically — the basis for "next/previous" cycling.
+	get sortedEvents(): StageEvent[] {
+		return [...this.events].sort((a, b) => a.date.localeCompare(b.date))
+	}
+
+	trackedAssignmentCount(status: 'confirmed' | 'unconfirmed' | 'declined'): number {
+		const event = this.trackedEvent
+		if (!event) return 0
+		return event.roleAssignments.filter((a) => a.pcoStatus === status).length
+	}
+
+	async refreshTrackedEventDetails(): Promise<void> {
 		if (!this.trackedEventId) {
 			this.trackedPositions = []
+			this.trackedHardwareAssignments = {}
 			return
 		}
 
 		const event = this.events.find((e) => e.id === this.trackedEventId) ?? (await this.api.getEvent(this.trackedEventId))
+
+		this.trackedHardwareAssignments = {}
+		for (const assignment of event.roleAssignments) {
+			const role = this.roles.find((r) => r.id === assignment.roleId)
+			const slots = assignment.hardwareOverride ?? role?.defaultHardware ?? []
+			for (const slot of slots) {
+				this.trackedHardwareAssignments[hardwareKey(slot.typeId, slot.num)] = assignment.personName
+			}
+		}
+
 		if (!event.layoutId) {
 			this.trackedPositions = []
 			return
@@ -69,6 +114,10 @@ export class ModuleState {
 				personName: assignment?.personName ?? null,
 			}
 		})
+	}
+
+	hardwareAssignedTo(typeId: string, num: number): string | null {
+		return this.trackedHardwareAssignments[hardwareKey(typeId, num)] ?? null
 	}
 
 	eventTitle(eventId: string | undefined): string {
