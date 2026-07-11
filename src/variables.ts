@@ -1,5 +1,5 @@
 import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
-import type { ModuleState } from './state'
+import { hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 function templateLabel(id: string): string {
@@ -29,8 +29,7 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 	}
 
 	for (const item of state.hardware.items) {
-		const type = state.hardware.types.find((t) => t.id === item.typeId)
-		const label = item.label || `${type?.name ?? item.typeId} ${item.num}`
+		const label = hardwareItemLabel(state.hardware, item)
 		defs.push({ variableId: `hardware_${item.id}_assigned_to`, name: `Tracked event: ${label} assigned to` })
 	}
 

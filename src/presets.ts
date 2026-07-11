@@ -1,5 +1,5 @@
 import { combineRgb, type CompanionPresetDefinitions } from '@companion-module/base'
-import type { ModuleState } from './state'
+import { hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 const GREEN = combineRgb(0, 153, 0)
@@ -131,6 +131,51 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 					},
 				],
 			}
+		}
+	}
+
+	for (const pos of state.trackedPositions) {
+		presets[`position_${pos.positionId}`] = {
+			type: 'button',
+			category: 'Positions',
+			name: `Position: ${pos.roleName}`,
+			style: {
+				text: `${pos.roleName}\n$(self:position_${pos.positionId}_name)`,
+				size: '14',
+				color: WHITE,
+				bgcolor: GREY,
+			},
+			steps: [{ down: [{ actionId: 'refreshNow', options: {} }], up: [] }],
+			feedbacks: [
+				{
+					feedbackId: 'trackedPositionFilled',
+					options: { positionId: pos.positionId },
+					style: { bgcolor: GREEN },
+				},
+			],
+		}
+	}
+
+	for (const item of state.hardware.items) {
+		const label = hardwareItemLabel(state.hardware, item)
+		presets[`hardware_${item.id}`] = {
+			type: 'button',
+			category: 'Hardware',
+			name: `Hardware: ${label}`,
+			style: {
+				text: `${label}\n$(self:hardware_${item.id}_assigned_to)`,
+				size: '14',
+				color: WHITE,
+				bgcolor: GREY,
+			},
+			steps: [{ down: [{ actionId: 'refreshNow', options: {} }], up: [] }],
+			feedbacks: [
+				{
+					feedbackId: 'hardwareSlotAssigned',
+					options: { typeId: item.typeId, num: item.num },
+					style: { bgcolor: GREEN },
+				},
+			],
 		}
 	}
 

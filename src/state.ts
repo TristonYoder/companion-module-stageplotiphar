@@ -1,5 +1,10 @@
 import type { StagePlotiferApi } from './api'
-import type { Hardware, Layout, MicBoard, Role, Screen, StageEvent } from './types'
+import type { Hardware, HardwareItem, Layout, MicBoard, Role, Screen, StageEvent } from './types'
+
+export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): string {
+	const type = hardware.types.find((t) => t.id === item.typeId)
+	return item.label || `${type?.name ?? item.typeId} ${item.num}`
+}
 
 export interface ResolvedPosition {
 	positionId: string

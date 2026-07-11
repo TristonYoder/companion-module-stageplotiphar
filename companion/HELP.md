@@ -47,4 +47,6 @@ Connects Bitfocus Companion to a [StagePlotifer](https://plotiphar.com) venue vi
 
 ## Presets
 
-Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, per-screen status + next/previous buttons, and one button per screen per template with a live highlight on whichever template is currently active.
+Drag-in buttons for the most common operations: refresh, track/send today's event, cycle the tracked event, send-to-PCO with a live sent/unsent color, an unconfirmed-assignments indicator, per-screen status + next/previous buttons, one button per screen per template with a live highlight on whichever template is currently active, one status button per stage position in the tracked event (highlights green when filled), and one status button per hardware item in the venue's catalog (highlights green when in use on the tracked event).
+
+Position and hardware buttons only appear once an event is being tracked (see "Track Event For Position Variables" / "Track Today's Event For Position Variables") — that's what determines which positions/hardware exist to show.
