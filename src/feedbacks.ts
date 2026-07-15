@@ -9,6 +9,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 	const eventChoices = () => state.events.map((e) => ({ id: e.id, label: `${e.date} — ${e.title}` }))
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
 	const hardwareTypeChoices = () => state.hardware.types.map((t) => ({ id: t.id, label: t.name }))
+	const positionChoices = () => state.trackedPositions.map((p) => ({ id: p.positionId, label: p.roleName }))
 
 	return {
 		screenShowsEvent: {
@@ -57,7 +58,17 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			type: 'boolean',
 			name: 'Tracked Position Is Filled',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
-			options: [{ type: 'textinput', id: 'positionId', label: 'Position ID', default: '' }],
+			options: [
+				{
+					type: 'dropdown',
+					id: 'positionId',
+					label: 'Position',
+					tooltip: 'Positions from the layout of the currently tracked event. Type a custom value to use a position ID directly or a variable expression.',
+					choices: positionChoices(),
+					default: positionChoices()[0]?.id ?? '',
+					allowCustom: true,
+				},
+			],
 			callback: (feedback) => {
 				const pos = state.trackedPositions.find((p) => p.positionId === feedback.options.positionId)
 				return !!pos?.personName
