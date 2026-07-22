@@ -32,7 +32,12 @@ function uniqueSlugs<T>(items: T[], idOf: (item: T) => string, labelOf: (item: T
 	return slugs
 }
 
-export function getPositionSlugs(positions: ResolvedPosition[]): Map<string, string> {
+export interface PositionRef {
+	positionId: string
+	roleName: string
+}
+
+export function getPositionSlugs(positions: PositionRef[]): Map<string, string> {
 	return uniqueSlugs(
 		positions,
 		(p) => p.positionId,
@@ -79,6 +84,14 @@ export class ModuleState {
 	trackedPositions: ResolvedPosition[] = []
 	trackedHardwareAssignments: Record<string, string> = {}
 
+	// Union of positions across every layout referenced by any known event
+	// (not just the tracked one), so position variables/presets/feedback
+	// choices stay available regardless of which event is currently tracked.
+	// Hardware is already venue-wide via getHardware(), so it needs no
+	// equivalent — trackedHardwareAssignments is the only per-event part.
+	allPositions: PositionRef[] = []
+	private layoutsById = new Map<string, Layout>()
+
 	constructor(private api: StagePlotipharApi) {}
 
 	async refreshAll(): Promise<void> {
@@ -105,9 +118,36 @@ export class ModuleState {
 			if (nearest) this.trackedEventId = nearest.id
 		}
 
+		await this.refreshAllPositions()
+
 		if (this.trackedEventId) {
 			await this.refreshTrackedEventDetails()
 		}
+	}
+
+	private async getLayoutCached(layoutId: string): Promise<Layout> {
+		const cached = this.layoutsById.get(layoutId)
+		if (cached) return cached
+		const layout = await this.api.getLayout(layoutId)
+		this.layoutsById.set(layoutId, layout)
+		return layout
+	}
+
+	private async refreshAllPositions(): Promise<void> {
+		const layoutIds = [...new Set(this.events.map((e) => e.layoutId).filter(Boolean))]
+		const layouts = await Promise.all(layoutIds.map((id) => this.getLayoutCached(id)))
+
+		const seen = new Set<string>()
+		const positions: PositionRef[] = []
+		for (const layout of layouts) {
+			for (const pos of layout.positions) {
+				if (seen.has(pos.id)) continue
+				seen.add(pos.id)
+				const role = this.roles.find((r) => r.id === pos.roleId)
+				positions.push({ positionId: pos.id, roleName: role?.name ?? pos.roleId })
+			}
+		}
+		this.allPositions = positions
 	}
 
 	setTrackedEvent(eventId: string | null): void {
@@ -169,7 +209,7 @@ export class ModuleState {
 			return
 		}
 
-		const layout: Layout = await this.api.getLayout(event.layoutId)
+		const layout = await this.getLayoutCached(event.layoutId)
 		this.trackedPositions = layout.positions.map((pos) => {
 			const override = event.positionOverrides.find((o) => o.positionId === pos.id)
 			const effectiveRoleId = override?.roleId ?? pos.roleId

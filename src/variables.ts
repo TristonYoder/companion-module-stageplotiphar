@@ -29,8 +29,8 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 	defs.push({ variableId: 'tracked_event_declined_count', name: 'Tracked event: declined assignment count' })
 	defs.push({ variableId: 'tracked_event_pco_sent', name: 'Tracked event: sent to PCO (yes/no)' })
 
-	const positionSlugs = getPositionSlugs(state.trackedPositions)
-	for (const pos of state.trackedPositions) {
+	const positionSlugs = getPositionSlugs(state.allPositions)
+	for (const pos of state.allPositions) {
 		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
 		defs.push({ variableId: `position_${slug}_role`, name: `Tracked event: role at position ${pos.roleName}` })
 		defs.push({ variableId: `position_${slug}_name`, name: `Tracked event: person at position ${pos.roleName}` })
@@ -69,11 +69,12 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 	values['tracked_event_declined_count'] = state.trackedAssignmentCount('declined')
 	values['tracked_event_pco_sent'] = state.trackedEvent?.pcoAttachmentSentAt ? 'yes' : 'no'
 
-	const positionSlugs = getPositionSlugs(state.trackedPositions)
-	for (const pos of state.trackedPositions) {
+	const positionSlugs = getPositionSlugs(state.allPositions)
+	for (const pos of state.allPositions) {
 		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
-		values[`position_${slug}_role`] = pos.roleName
-		values[`position_${slug}_name`] = pos.personName ?? ''
+		const tracked = state.trackedPositions.find((p) => p.positionId === pos.positionId)
+		values[`position_${slug}_role`] = tracked?.roleName ?? pos.roleName
+		values[`position_${slug}_name`] = tracked?.personName ?? ''
 	}
 
 	const hardwareSlugs = getHardwareSlugs(state.hardware)

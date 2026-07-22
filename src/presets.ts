@@ -136,8 +136,8 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 		}
 	}
 
-	const positionSlugs = getPositionSlugs(state.trackedPositions)
-	for (const pos of state.trackedPositions) {
+	const positionSlugs = getPositionSlugs(state.allPositions)
+	for (const pos of state.allPositions) {
 		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
 		presets[`position_${slug}`] = {
 			type: 'button',
