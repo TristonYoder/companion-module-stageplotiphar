@@ -1,5 +1,5 @@
 import { combineRgb, type CompanionPresetDefinitions } from '@companion-module/base'
-import { hardwareItemLabel, type ModuleState } from './state'
+import { getHardwareSlugs, getPositionSlugs, hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 const GREEN = combineRgb(0, 153, 0)
@@ -136,13 +136,15 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 		}
 	}
 
+	const positionSlugs = getPositionSlugs(state.trackedPositions)
 	for (const pos of state.trackedPositions) {
-		presets[`position_${pos.positionId}`] = {
+		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
+		presets[`position_${slug}`] = {
 			type: 'button',
 			category: 'Positions',
 			name: `Role: ${pos.roleName}`,
 			style: {
-				text: `${pos.roleName}\n$(self:position_${pos.positionId}_name)`,
+				text: `${pos.roleName}\n$(self:position_${slug}_name)`,
 				size: '14',
 				color: WHITE,
 				bgcolor: GREY,
@@ -160,20 +162,22 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 				// the state above when there's no photo (or no one assigned).
 				{
 					feedbackId: 'personImage',
-					options: { name: `$(self:position_${pos.positionId}_name)` },
+					options: { name: `$(self:position_${slug}_name)` },
 				},
 			],
 		}
 	}
 
+	const hardwareSlugs = getHardwareSlugs(state.hardware)
 	for (const item of state.hardware.items) {
 		const label = hardwareItemLabel(state.hardware, item)
-		presets[`hardware_${item.id}`] = {
+		const slug = hardwareSlugs.get(item.id) ?? item.id
+		presets[`hardware_${slug}`] = {
 			type: 'button',
 			category: 'Hardware',
 			name: `Hardware: ${label}`,
 			style: {
-				text: `${label}\n$(self:hardware_${item.id}_assigned_to)`,
+				text: `${label}\n$(self:hardware_${slug}_assigned_to)`,
 				size: '14',
 				color: WHITE,
 				bgcolor: GREY,

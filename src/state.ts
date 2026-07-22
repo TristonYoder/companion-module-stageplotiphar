@@ -6,6 +6,48 @@ export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): strin
 	return item.label || `${type?.name ?? item.typeId} ${item.num}`
 }
 
+// Turns a human-readable label into a variable-id-safe slug (lowercase,
+// underscores). Used so variable ids read as e.g. `position_lead_vocal_name`
+// instead of `position_3f2c1a9e..._name`.
+function slugify(text: string): string {
+	const slug = text
+		.trim()
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '_')
+		.replace(/^_+|_+$/g, '')
+	return slug || 'unnamed'
+}
+
+// Assigns each item a unique slug, keyed by its stable id, appending `_2`,
+// `_3`, etc. when two items would otherwise slugify to the same value.
+function uniqueSlugs<T>(items: T[], idOf: (item: T) => string, labelOf: (item: T) => string): Map<string, string> {
+	const counts = new Map<string, number>()
+	const slugs = new Map<string, string>()
+	for (const item of items) {
+		const base = slugify(labelOf(item))
+		const count = (counts.get(base) ?? 0) + 1
+		counts.set(base, count)
+		slugs.set(idOf(item), count === 1 ? base : `${base}_${count}`)
+	}
+	return slugs
+}
+
+export function getPositionSlugs(positions: ResolvedPosition[]): Map<string, string> {
+	return uniqueSlugs(
+		positions,
+		(p) => p.positionId,
+		(p) => p.roleName,
+	)
+}
+
+export function getHardwareSlugs(hardware: Hardware): Map<string, string> {
+	return uniqueSlugs(
+		hardware.items,
+		(item) => item.id,
+		(item) => hardwareItemLabel(hardware, item),
+	)
+}
+
 export interface ResolvedPosition {
 	positionId: string
 	roleId: string
@@ -90,6 +132,14 @@ export class ModuleState {
 		return this.sortedEvents.find((e) => e.date >= today)
 	}
 
+	// Most recent event that has already passed. Undefined if every known
+	// event is today or in the future.
+	get previousEvent(): StageEvent | undefined {
+		const today = todayDateString()
+		const past = this.sortedEvents.filter((e) => e.date < today)
+		return past[past.length - 1]
+	}
+
 	trackedAssignmentCount(status: 'confirmed' | 'unconfirmed' | 'declined'): number {
 		const event = this.trackedEvent
 		if (!event) return 0
@@ -141,6 +191,11 @@ export class ModuleState {
 	eventTitle(eventId: string | undefined): string {
 		if (!eventId) return ''
 		return this.events.find((e) => e.id === eventId)?.title ?? eventId
+	}
+
+	eventDate(eventId: string | undefined): string {
+		if (!eventId) return ''
+		return this.events.find((e) => e.id === eventId)?.date ?? ''
 	}
 
 	micboardName(micboardId: string | undefined): string {
