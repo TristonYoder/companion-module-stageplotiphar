@@ -10,6 +10,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
 	const hardwareTypeChoices = () => state.hardware.types.map((t) => ({ id: t.id, label: t.name }))
 	const positionChoices = () => state.allPositions.map((p) => ({ id: p.positionId, label: p.roleName }))
+	const roleChoices = () => state.productionRoles.map((r) => ({ id: r.roleId, label: r.roleName }))
 
 	return {
 		screenShowsEvent: {
@@ -72,6 +73,26 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			callback: (feedback) => {
 				const pos = state.trackedPositions.find((p) => p.positionId === feedback.options.positionId)
 				return !!pos?.personName
+			},
+		},
+
+		trackedRoleFilled: {
+			type: 'boolean',
+			name: 'Tracked Role Is Filled',
+			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
+			options: [
+				{
+					type: 'dropdown',
+					id: 'roleId',
+					label: 'Role',
+					tooltip: 'Roles with no stage position (Audio, Media, etc.) — tracked via role assignments only. Type a custom value to use a role ID directly or a variable expression.',
+					choices: roleChoices(),
+					default: roleChoices()[0]?.id ?? '',
+					allowCustom: true,
+				},
+			],
+			callback: (feedback) => {
+				return !!state.roleAssignedTo(String(feedback.options.roleId))
 			},
 		},
 
