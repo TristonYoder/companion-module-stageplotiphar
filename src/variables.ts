@@ -1,5 +1,5 @@
 import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
-import { hardwareItemLabel, type ModuleState } from './state'
+import { getHardwareSlugs, getPositionSlugs, hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 function templateLabel(id: string): string {
@@ -17,20 +17,30 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 
 	defs.push({ variableId: 'upcoming_event_id', name: 'Nearest upcoming event: id' })
 	defs.push({ variableId: 'upcoming_event_title', name: 'Nearest upcoming event: title' })
+	defs.push({ variableId: 'upcoming_event_date', name: 'Nearest upcoming event: date' })
+
+	defs.push({ variableId: 'previous_event_id', name: 'Most recent past event: id' })
+	defs.push({ variableId: 'previous_event_title', name: 'Most recent past event: title' })
+	defs.push({ variableId: 'previous_event_date', name: 'Most recent past event: date' })
 
 	defs.push({ variableId: 'tracked_event_title', name: 'Tracked event: title' })
+	defs.push({ variableId: 'tracked_event_date', name: 'Tracked event: date' })
 	defs.push({ variableId: 'tracked_event_unconfirmed_count', name: 'Tracked event: unconfirmed assignment count' })
 	defs.push({ variableId: 'tracked_event_declined_count', name: 'Tracked event: declined assignment count' })
 	defs.push({ variableId: 'tracked_event_pco_sent', name: 'Tracked event: sent to PCO (yes/no)' })
 
+	const positionSlugs = getPositionSlugs(state.trackedPositions)
 	for (const pos of state.trackedPositions) {
-		defs.push({ variableId: `position_${pos.positionId}_role`, name: `Tracked event: role at position ${pos.positionId}` })
-		defs.push({ variableId: `position_${pos.positionId}_name`, name: `Tracked event: person at position ${pos.positionId}` })
+		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
+		defs.push({ variableId: `position_${slug}_role`, name: `Tracked event: role at position ${pos.roleName}` })
+		defs.push({ variableId: `position_${slug}_name`, name: `Tracked event: person at position ${pos.roleName}` })
 	}
 
+	const hardwareSlugs = getHardwareSlugs(state.hardware)
 	for (const item of state.hardware.items) {
 		const label = hardwareItemLabel(state.hardware, item)
-		defs.push({ variableId: `hardware_${item.id}_assigned_to`, name: `Tracked event: ${label} assigned to` })
+		const slug = hardwareSlugs.get(item.id) ?? item.id
+		defs.push({ variableId: `hardware_${slug}_assigned_to`, name: `Tracked event: ${label} assigned to` })
 	}
 
 	return defs
@@ -47,19 +57,29 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 
 	values['upcoming_event_id'] = state.nearestUpcomingEvent?.id ?? ''
 	values['upcoming_event_title'] = state.nearestUpcomingEvent?.title ?? ''
+	values['upcoming_event_date'] = state.nearestUpcomingEvent?.date ?? ''
+
+	values['previous_event_id'] = state.previousEvent?.id ?? ''
+	values['previous_event_title'] = state.previousEvent?.title ?? ''
+	values['previous_event_date'] = state.previousEvent?.date ?? ''
 
 	values['tracked_event_title'] = state.eventTitle(state.trackedEventId ?? undefined)
+	values['tracked_event_date'] = state.eventDate(state.trackedEventId ?? undefined)
 	values['tracked_event_unconfirmed_count'] = state.trackedAssignmentCount('unconfirmed')
 	values['tracked_event_declined_count'] = state.trackedAssignmentCount('declined')
 	values['tracked_event_pco_sent'] = state.trackedEvent?.pcoAttachmentSentAt ? 'yes' : 'no'
 
+	const positionSlugs = getPositionSlugs(state.trackedPositions)
 	for (const pos of state.trackedPositions) {
-		values[`position_${pos.positionId}_role`] = pos.roleName
-		values[`position_${pos.positionId}_name`] = pos.personName ?? ''
+		const slug = positionSlugs.get(pos.positionId) ?? pos.positionId
+		values[`position_${slug}_role`] = pos.roleName
+		values[`position_${slug}_name`] = pos.personName ?? ''
 	}
 
+	const hardwareSlugs = getHardwareSlugs(state.hardware)
 	for (const item of state.hardware.items) {
-		values[`hardware_${item.id}_assigned_to`] = state.hardwareAssignedTo(item.typeId, item.num) ?? ''
+		const slug = hardwareSlugs.get(item.id) ?? item.id
+		values[`hardware_${slug}_assigned_to`] = state.hardwareAssignedTo(item.typeId, item.num) ?? ''
 	}
 
 	return values
