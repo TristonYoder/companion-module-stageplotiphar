@@ -10,7 +10,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
 	const hardwareTypeChoices = () => state.hardware.types.map((t) => ({ id: t.id, label: t.name }))
 	const positionChoices = () => state.allPositions.map((p) => ({ id: p.positionId, label: p.roleName }))
-	const roleChoices = () => state.productionRoles.map((r) => ({ id: r.roleId, label: r.roleName }))
+	const roleChoices = () => state.allRoles.map((r) => ({ id: r.roleId, label: r.roleName }))
 
 	return {
 		screenShowsEvent: {
@@ -85,7 +85,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 					type: 'dropdown',
 					id: 'roleId',
 					label: 'Role',
-					tooltip: 'Roles with no stage position (Audio, Media, etc.) — tracked via role assignments only. Type a custom value to use a role ID directly or a variable expression.',
+					tooltip: 'Every known role, whether or not it has a stage position. Type a custom value to use a role ID directly or a variable expression.',
 					choices: roleChoices(),
 					default: roleChoices()[0]?.id ?? '',
 					allowCustom: true,
