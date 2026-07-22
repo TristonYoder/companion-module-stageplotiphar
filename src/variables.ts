@@ -1,5 +1,5 @@
 import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
-import { getHardwareSlugs, getPositionSlugs, hardwareItemLabel, type ModuleState } from './state'
+import { getHardwareSlugs, getPositionSlugs, getRoleSlugs, hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 function templateLabel(id: string): string {
@@ -43,6 +43,14 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 		defs.push({ variableId: `hardware_${slug}_assigned_to`, name: `Tracked event: ${label} assigned to` })
 	}
 
+	// Roles with no stage position (Audio, Media, etc.) — tracked via
+	// role assignments only, not the layout.
+	const roleSlugs = getRoleSlugs(state.productionRoles)
+	for (const role of state.productionRoles) {
+		const slug = roleSlugs.get(role.roleId) ?? role.roleId
+		defs.push({ variableId: `role_${slug}_name`, name: `Tracked event: person for role ${role.roleName}` })
+	}
+
 	return defs
 }
 
@@ -81,6 +89,12 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 	for (const item of state.hardware.items) {
 		const slug = hardwareSlugs.get(item.id) ?? item.id
 		values[`hardware_${slug}_assigned_to`] = state.hardwareAssignedTo(item.typeId, item.num) ?? ''
+	}
+
+	const roleSlugs = getRoleSlugs(state.productionRoles)
+	for (const role of state.productionRoles) {
+		const slug = roleSlugs.get(role.roleId) ?? role.roleId
+		values[`role_${slug}_name`] = state.roleAssignedTo(role.roleId) ?? ''
 	}
 
 	return values

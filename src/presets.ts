@@ -1,5 +1,5 @@
 import { combineRgb, type CompanionPresetDefinitions } from '@companion-module/base'
-import { getHardwareSlugs, getPositionSlugs, hardwareItemLabel, type ModuleState } from './state'
+import { getHardwareSlugs, getPositionSlugs, getRoleSlugs, hardwareItemLabel, type ModuleState } from './state'
 import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 const GREEN = combineRgb(0, 153, 0)
@@ -163,6 +163,34 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 				{
 					feedbackId: 'personImage',
 					options: { name: `$(self:position_${slug}_name)` },
+				},
+			],
+		}
+	}
+
+	const roleSlugs = getRoleSlugs(state.productionRoles)
+	for (const role of state.productionRoles) {
+		const slug = roleSlugs.get(role.roleId) ?? role.roleId
+		presets[`role_${slug}`] = {
+			type: 'button',
+			category: 'Roles',
+			name: `Role: ${role.roleName}`,
+			style: {
+				text: `${role.roleName}\n$(self:role_${slug}_name)`,
+				size: '14',
+				color: WHITE,
+				bgcolor: GREY,
+			},
+			steps: [{ down: [{ actionId: 'refreshNow', options: {} }], up: [] }],
+			feedbacks: [
+				{
+					feedbackId: 'trackedRoleFilled',
+					options: { roleId: role.roleId },
+					style: { bgcolor: GREEN },
+				},
+				{
+					feedbackId: 'personImage',
+					options: { name: `$(self:role_${slug}_name)` },
 				},
 			],
 		}

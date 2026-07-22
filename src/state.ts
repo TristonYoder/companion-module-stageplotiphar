@@ -45,6 +45,19 @@ export function getPositionSlugs(positions: PositionRef[]): Map<string, string> 
 	)
 }
 
+export interface RoleRef {
+	roleId: string
+	roleName: string
+}
+
+export function getRoleSlugs(roles: RoleRef[]): Map<string, string> {
+	return uniqueSlugs(
+		roles,
+		(r) => r.roleId,
+		(r) => r.roleName,
+	)
+}
+
 export function getHardwareSlugs(hardware: Hardware): Map<string, string> {
 	return uniqueSlugs(
 		hardware.items,
@@ -83,6 +96,7 @@ export class ModuleState {
 	trackedEventId: string | null = null
 	trackedPositions: ResolvedPosition[] = []
 	trackedHardwareAssignments: Record<string, string> = {}
+	trackedRoleAssignments: Record<string, string> = {}
 
 	// Union of positions across every layout referenced by any known event
 	// (not just the tracked one), so position variables/presets/feedback
@@ -91,6 +105,15 @@ export class ModuleState {
 	// equivalent — trackedHardwareAssignments is the only per-event part.
 	allPositions: PositionRef[] = []
 	private layoutsById = new Map<string, Layout>()
+
+	// Roles that never appear on a stage layout (e.g. Audio, Media) — tracked
+	// via roleAssignments only, never via a StagePosition. Computed from the
+	// same layout scan as allPositions.
+	private onStageRoleIds = new Set<string>()
+
+	get productionRoles(): RoleRef[] {
+		return this.roles.filter((r) => !this.onStageRoleIds.has(r.id)).map((r) => ({ roleId: r.id, roleName: r.name }))
+	}
 
 	constructor(private api: StagePlotipharApi) {}
 
@@ -139,8 +162,10 @@ export class ModuleState {
 
 		const seen = new Set<string>()
 		const positions: PositionRef[] = []
+		const onStageRoleIds = new Set<string>()
 		for (const layout of layouts) {
 			for (const pos of layout.positions) {
+				onStageRoleIds.add(pos.roleId)
 				if (seen.has(pos.id)) continue
 				seen.add(pos.id)
 				const role = this.roles.find((r) => r.id === pos.roleId)
@@ -148,12 +173,14 @@ export class ModuleState {
 			}
 		}
 		this.allPositions = positions
+		this.onStageRoleIds = onStageRoleIds
 	}
 
 	setTrackedEvent(eventId: string | null): void {
 		this.trackedEventId = eventId
 		this.trackedPositions = []
 		this.trackedHardwareAssignments = {}
+		this.trackedRoleAssignments = {}
 	}
 
 	get trackedEvent(): StageEvent | undefined {
@@ -190,13 +217,16 @@ export class ModuleState {
 		if (!this.trackedEventId) {
 			this.trackedPositions = []
 			this.trackedHardwareAssignments = {}
+			this.trackedRoleAssignments = {}
 			return
 		}
 
 		const event = this.events.find((e) => e.id === this.trackedEventId) ?? (await this.api.getEvent(this.trackedEventId))
 
 		this.trackedHardwareAssignments = {}
+		this.trackedRoleAssignments = {}
 		for (const assignment of event.roleAssignments) {
+			this.trackedRoleAssignments[assignment.roleId] = assignment.personName
 			const role = this.roles.find((r) => r.id === assignment.roleId)
 			const slots = assignment.hardwareOverride ?? role?.defaultHardware ?? []
 			for (const slot of slots) {
@@ -226,6 +256,10 @@ export class ModuleState {
 
 	hardwareAssignedTo(typeId: string, num: number): string | null {
 		return this.trackedHardwareAssignments[hardwareKey(typeId, num)] ?? null
+	}
+
+	roleAssignedTo(roleId: string): string | null {
+		return this.trackedRoleAssignments[roleId] ?? null
 	}
 
 	eventTitle(eventId: string | undefined): string {
