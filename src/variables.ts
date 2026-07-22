@@ -43,10 +43,10 @@ export function getVariableDefinitions(state: ModuleState): CompanionVariableDef
 		defs.push({ variableId: `hardware_${slug}_assigned_to`, name: `Tracked event: ${label} assigned to` })
 	}
 
-	// Roles with no stage position (Audio, Media, etc.) — tracked via
-	// role assignments only, not the layout.
-	const roleSlugs = getRoleSlugs(state.productionRoles)
-	for (const role of state.productionRoles) {
+	// Person assigned to each role for the tracked event, independent of
+	// whether that role has a stage position.
+	const roleSlugs = getRoleSlugs(state.allRoles)
+	for (const role of state.allRoles) {
 		const slug = roleSlugs.get(role.roleId) ?? role.roleId
 		defs.push({ variableId: `role_${slug}_name`, name: `Tracked event: person for role ${role.roleName}` })
 	}
@@ -91,8 +91,8 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 		values[`hardware_${slug}_assigned_to`] = state.hardwareAssignedTo(item.typeId, item.num) ?? ''
 	}
 
-	const roleSlugs = getRoleSlugs(state.productionRoles)
-	for (const role of state.productionRoles) {
+	const roleSlugs = getRoleSlugs(state.allRoles)
+	for (const role of state.allRoles) {
 		const slug = roleSlugs.get(role.roleId) ?? role.roleId
 		values[`role_${slug}_name`] = state.roleAssignedTo(role.roleId) ?? ''
 	}

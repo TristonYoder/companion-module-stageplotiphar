@@ -106,13 +106,11 @@ export class ModuleState {
 	allPositions: PositionRef[] = []
 	private layoutsById = new Map<string, Layout>()
 
-	// Roles that never appear on a stage layout (e.g. Audio, Media) — tracked
-	// via roleAssignments only, never via a StagePosition. Computed from the
-	// same layout scan as allPositions.
-	private onStageRoleIds = new Set<string>()
-
-	get productionRoles(): RoleRef[] {
-		return this.roles.filter((r) => !this.onStageRoleIds.has(r.id)).map((r) => ({ roleId: r.id, roleName: r.name }))
+	// Every known role, keyed by role id — covers roles with a stage position
+	// (via allPositions) as well as production roles (Audio, Media, etc.)
+	// that only ever show up in roleAssignments.
+	get allRoles(): RoleRef[] {
+		return this.roles.map((r) => ({ roleId: r.id, roleName: r.name }))
 	}
 
 	constructor(private api: StagePlotipharApi) {}
@@ -162,10 +160,8 @@ export class ModuleState {
 
 		const seen = new Set<string>()
 		const positions: PositionRef[] = []
-		const onStageRoleIds = new Set<string>()
 		for (const layout of layouts) {
 			for (const pos of layout.positions) {
-				onStageRoleIds.add(pos.roleId)
 				if (seen.has(pos.id)) continue
 				seen.add(pos.id)
 				const role = this.roles.find((r) => r.id === pos.roleId)
@@ -173,7 +169,6 @@ export class ModuleState {
 			}
 		}
 		this.allPositions = positions
-		this.onStageRoleIds = onStageRoleIds
 	}
 
 	setTrackedEvent(eventId: string | null): void {

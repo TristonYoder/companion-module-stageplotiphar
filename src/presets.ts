@@ -168,8 +168,8 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 		}
 	}
 
-	const roleSlugs = getRoleSlugs(state.productionRoles)
-	for (const role of state.productionRoles) {
+	const roleSlugs = getRoleSlugs(state.allRoles)
+	for (const role of state.allRoles) {
 		const slug = roleSlugs.get(role.roleId) ?? role.roleId
 		presets[`role_${slug}`] = {
 			type: 'button',
