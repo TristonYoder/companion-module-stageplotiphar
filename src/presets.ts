@@ -21,7 +21,12 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			type: 'button',
 			category: 'General',
 			name: 'Track Nearest Upcoming Event',
-			style: { text: 'Track Nearest\nUpcoming Event\n$(self:upcoming_event_title)', size: '14', color: WHITE, bgcolor: BLUE },
+			style: {
+				text: 'Track Nearest\nUpcoming Event\n$(self:upcoming_event_title)',
+				size: '14',
+				color: WHITE,
+				bgcolor: BLUE,
+			},
 			steps: [{ down: [{ actionId: 'trackNearestUpcomingEvent', options: {} }], up: [] }],
 			feedbacks: [],
 		},
@@ -68,7 +73,13 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			name: 'Tracked Event Has Unconfirmed Assignments',
 			style: { text: 'Unconfirmed:\n$(self:tracked_event_unconfirmed_count)', size: '14', color: WHITE, bgcolor: GREY },
 			steps: [{ down: [], up: [] }],
-			feedbacks: [{ feedbackId: 'trackedEventAssignmentStatus', options: { status: 'unconfirmed' }, style: { bgcolor: combineRgb(204, 0, 0) } }],
+			feedbacks: [
+				{
+					feedbackId: 'trackedEventAssignmentStatus',
+					options: { status: 'unconfirmed' },
+					style: { bgcolor: combineRgb(204, 0, 0) },
+				},
+			],
 		},
 	}
 
@@ -93,7 +104,12 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			type: 'button',
 			category: 'Screens',
 			name: `${screen.name}: Status`,
-			style: { text: `${screen.name}\n$(self:screen_${screen.id}_event_title)`, size: '14', color: WHITE, bgcolor: GREY },
+			style: {
+				text: `${screen.name}\n$(self:screen_${screen.id}_event_title)`,
+				size: '14',
+				color: WHITE,
+				bgcolor: GREY,
+			},
 			steps: [{ down: [{ actionId: 'refreshNow', options: {} }], up: [] }],
 			feedbacks: [],
 		}

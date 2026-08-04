@@ -6,7 +6,7 @@ export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 export class ApiError extends Error {
 	constructor(
 		public status: number,
-		message: string
+		message: string,
 	) {
 		super(message)
 	}
@@ -53,27 +53,27 @@ export class StagePlotipharApi {
 		return res.venues
 	}
 
-	listEvents(): Promise<StageEvent[]> {
+	async listEvents(): Promise<StageEvent[]> {
 		return this.request('/api/events')
 	}
 
-	getEvent(id: string): Promise<StageEvent> {
+	async getEvent(id: string): Promise<StageEvent> {
 		return this.request(`/api/events/${encodeURIComponent(id)}`)
 	}
 
-	getLayout(id: string): Promise<Layout> {
+	async getLayout(id: string): Promise<Layout> {
 		return this.request(`/api/layouts/${encodeURIComponent(id)}`)
 	}
 
-	listRoles(): Promise<Role[]> {
+	async listRoles(): Promise<Role[]> {
 		return this.request('/api/roles')
 	}
 
-	listMicBoards(): Promise<MicBoard[]> {
+	async listMicBoards(): Promise<MicBoard[]> {
 		return this.request('/api/micboards')
 	}
 
-	getHardware(): Promise<Hardware> {
+	async getHardware(): Promise<Hardware> {
 		return this.request('/api/hardware')
 	}
 
@@ -108,7 +108,7 @@ export class StagePlotipharApi {
 		}
 	}
 
-	listScreens(): Promise<Screen[]> {
+	async listScreens(): Promise<Screen[]> {
 		return this.request('/api/screens')
 	}
 
@@ -125,21 +125,24 @@ export class StagePlotipharApi {
 		}
 	}
 
-	updateScreen(id: string, patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type'>>): Promise<Screen> {
+	async updateScreen(
+		id: string,
+		patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type'>>,
+	): Promise<Screen> {
 		return this.request(`/api/screens/${encodeURIComponent(id)}`, {
 			method: 'PUT',
 			body: JSON.stringify(patch),
 		})
 	}
 
-	sendEventToAllScreens(eventId: string): Promise<{ ok: boolean; count: number }> {
+	async sendEventToAllScreens(eventId: string): Promise<{ ok: boolean; count: number }> {
 		return this.request('/api/screens/send-all', {
 			method: 'POST',
 			body: JSON.stringify({ eventId }),
 		})
 	}
 
-	sendEventToPco(eventId: string): Promise<{ ok: boolean; url: string }> {
+	async sendEventToPco(eventId: string): Promise<{ ok: boolean; url: string }> {
 		return this.request(`/api/events/${encodeURIComponent(eventId)}/send-to-pco`, {
 			method: 'POST',
 		})

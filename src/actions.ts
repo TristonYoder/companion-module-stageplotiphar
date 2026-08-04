@@ -33,7 +33,10 @@ function guardCallbacks(defs: CompanionActionDefinitions, deps: ActionDeps): Com
 					if (err instanceof ApiError && err.status === 401) {
 						deps.setStatus(InstanceStatus.AuthenticationFailure, err.message)
 					} else if (err instanceof ApiError && err.status === 402) {
-						deps.setStatus(InstanceStatus.UnknownWarning, 'Billing entitlement lapsed — changes are rejected until the subscription is renewed')
+						deps.setStatus(
+							InstanceStatus.UnknownWarning,
+							'Billing entitlement lapsed — changes are rejected until the subscription is renewed',
+						)
 					}
 					deps.log('error', `${def.name} failed: ${err instanceof Error ? err.message : String(err)}`)
 					return undefined
@@ -44,7 +47,11 @@ function guardCallbacks(defs: CompanionActionDefinitions, deps: ActionDeps): Com
 	return guarded
 }
 
-function neighborEvent(sorted: StageEvent[], currentId: string | undefined, direction: 'next' | 'previous'): StageEvent | undefined {
+function neighborEvent(
+	sorted: StageEvent[],
+	currentId: string | undefined,
+	direction: 'next' | 'previous',
+): StageEvent | undefined {
 	if (sorted.length === 0) return undefined
 	const currentIndex = sorted.findIndex((e) => e.id === currentId)
 	if (currentIndex === -1) return direction === 'next' ? sorted[0] : sorted[sorted.length - 1]
@@ -65,8 +72,20 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 		setScreenEvent: {
 			name: 'Set Screen Event',
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
 			],
 			callback: async (event) => {
 				const screenId = String(event.options.screenId)
@@ -79,8 +98,20 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 		setScreenMicboard: {
 			name: 'Set Screen MicBoard',
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'micboardId', label: 'MicBoard', choices: micboardChoices(), default: micboardChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'micboardId',
+					label: 'MicBoard',
+					choices: micboardChoices(),
+					default: micboardChoices()[0]?.id ?? '',
+				},
 			],
 			callback: async (event) => {
 				const screenId = String(event.options.screenId)
@@ -93,8 +124,20 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 		setScreenTemplate: {
 			name: 'Set Screen Template',
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'template', label: 'Template', choices: templateChoices(), default: templateChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'template',
+					label: 'Template',
+					choices: templateChoices(),
+					default: templateChoices()[0]?.id ?? '',
+				},
 			],
 			callback: async (event) => {
 				const screenId = String(event.options.screenId)
@@ -107,7 +150,13 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 		advanceScreenEvent: {
 			name: 'Advance Screen To Next/Previous Event',
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
 				{
 					type: 'dropdown',
 					id: 'direction',
@@ -135,7 +184,15 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 
 		sendEventToAllScreens: {
 			name: 'Send Event To All Screens',
-			options: [{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' }],
+			options: [
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
+			],
 			callback: async (event) => {
 				const eventId = String(event.options.eventId)
 				await api.sendEventToAllScreens(eventId)
@@ -159,7 +216,15 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 
 		setTrackedEvent: {
 			name: 'Track Event For Position Variables',
-			options: [{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' }],
+			options: [
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
+			],
 			callback: async (event) => {
 				state.setTrackedEvent(String(event.options.eventId))
 				await refresh()
@@ -204,7 +269,15 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 
 		sendEventToPco: {
 			name: 'Send Event To PCO',
-			options: [{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' }],
+			options: [
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
+			],
 			callback: async (event) => {
 				const eventId = String(event.options.eventId)
 				await api.sendEventToPco(eventId)
