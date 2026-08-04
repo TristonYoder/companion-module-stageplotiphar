@@ -7,7 +7,7 @@
 	"scripts": {
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
-		"lint": "eslint src --ext .ts",
+		"lint": "eslint src",
 		"test:contract": "node --test contract/*.test.mjs"
 	},
 	"dependencies": {
@@ -16,10 +16,14 @@
 	"devDependencies": {
 		"@companion-module/tools": "^2.2.1",
 		"@types/node": "^20.14.0",
+		"eslint": "^9.36.0",
+		"prettier": "^3.6.2",
 		"rimraf": "^5.0.5",
-		"typescript": "^5.5.0"
+		"typescript": "^5.5.0",
+		"typescript-eslint": "^8.44.1"
 	},
 	"engines": {
 		"node": "^18.12 || >=20.9.0"
-	}
+	},
+	"prettier": "@companion-module/tools/.prettierrc.json"
 }

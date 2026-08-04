@@ -165,7 +165,7 @@ export class ModuleState {
 
 	private async refreshAllPositions(): Promise<void> {
 		const layoutIds = [...new Set(this.events.map((e) => e.layoutId).filter(Boolean))]
-		const layouts = await Promise.all(layoutIds.map((id) => this.getLayoutCached(id)))
+		const layouts = await Promise.all(layoutIds.map(async (id) => this.getLayoutCached(id)))
 
 		const seen = new Set<string>()
 		const positions: PositionRef[] = []
@@ -225,7 +225,8 @@ export class ModuleState {
 			return
 		}
 
-		const event = this.events.find((e) => e.id === this.trackedEventId) ?? (await this.api.getEvent(this.trackedEventId))
+		const event =
+			this.events.find((e) => e.id === this.trackedEventId) ?? (await this.api.getEvent(this.trackedEventId))
 
 		this.trackedHardwareAssignments = {}
 		this.trackedRoleAssignments = {}
