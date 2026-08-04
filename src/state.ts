@@ -1,5 +1,15 @@
 import type { StagePlotipharApi } from './api'
-import type { Hardware, HardwareItem, Layout, MicBoard, Person, Role, Screen, ScreenTypeChoice, StageEvent } from './types'
+import type {
+	Hardware,
+	HardwareItem,
+	Layout,
+	MicBoard,
+	Person,
+	Role,
+	Screen,
+	ScreenTypeChoice,
+	StageEvent,
+} from './types'
 import { FALLBACK_SCREEN_TYPES } from './types'
 
 export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): string {

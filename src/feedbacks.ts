@@ -20,8 +20,20 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			name: 'Screen Shows Event',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
 			],
 			callback: (feedback) => {
 				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
@@ -34,8 +46,20 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			name: 'Screen Shows MicBoard',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'micboardId', label: 'MicBoard', choices: micboardChoices(), default: micboardChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'micboardId',
+					label: 'MicBoard',
+					choices: micboardChoices(),
+					default: micboardChoices()[0]?.id ?? '',
+				},
 			],
 			callback: (feedback) => {
 				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
@@ -48,8 +72,20 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			name: 'Screen Shows Template',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
 			options: [
-				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'template', label: 'Template', choices: templateChoices(), default: templateChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'template',
+					label: 'Template',
+					choices: templateChoices(),
+					default: templateChoices()[0]?.id ?? '',
+				},
 			],
 			callback: (feedback) => {
 				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
@@ -66,7 +102,8 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 					type: 'dropdown',
 					id: 'positionId',
 					label: 'Position',
-					tooltip: 'Positions from every layout used by any known event. Type a custom value to use a position ID directly or a variable expression.',
+					tooltip:
+						'Positions from every layout used by any known event. Type a custom value to use a position ID directly or a variable expression.',
 					choices: positionChoices(),
 					default: positionChoices()[0]?.id ?? '',
 					allowCustom: true,
@@ -87,7 +124,8 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 					type: 'dropdown',
 					id: 'roleId',
 					label: 'Role',
-					tooltip: 'Every known role, whether or not it has a stage position. Type a custom value to use a role ID directly or a variable expression.',
+					tooltip:
+						'Every known role, whether or not it has a stage position. Type a custom value to use a role ID directly or a variable expression.',
 					choices: roleChoices(),
 					default: roleChoices()[0]?.id ?? '',
 					allowCustom: true,
@@ -125,7 +163,15 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			type: 'boolean',
 			name: 'Event Sent To PCO',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
-			options: [{ type: 'dropdown', id: 'eventId', label: 'Event', choices: eventChoices(), default: eventChoices()[0]?.id ?? '' }],
+			options: [
+				{
+					type: 'dropdown',
+					id: 'eventId',
+					label: 'Event',
+					choices: eventChoices(),
+					default: eventChoices()[0]?.id ?? '',
+				},
+			],
 			callback: (feedback) => {
 				const event = state.events.find((e) => e.id === feedback.options.eventId)
 				return !!event?.pcoAttachmentSentAt
@@ -145,7 +191,13 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			name: 'Hardware Slot Assigned (Tracked Event)',
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
 			options: [
-				{ type: 'dropdown', id: 'typeId', label: 'Hardware Type', choices: hardwareTypeChoices(), default: hardwareTypeChoices()[0]?.id ?? '' },
+				{
+					type: 'dropdown',
+					id: 'typeId',
+					label: 'Hardware Type',
+					choices: hardwareTypeChoices(),
+					default: hardwareTypeChoices()[0]?.id ?? '',
+				},
 				{ type: 'number', id: 'num', label: 'Number', default: 1, min: 1, max: 999 },
 			],
 			callback: (feedback) => {

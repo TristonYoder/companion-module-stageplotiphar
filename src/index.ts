@@ -31,10 +31,10 @@ class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 			getActionDefinitions({
 				api: this.api,
 				state: this.state,
-				refresh: () => this.refresh(),
+				refresh: async () => this.refresh(),
 				log: (level, message) => this.log(level, message),
 				setStatus: (status, message) => this.updateStatus(status, message),
-			})
+			}),
 		)
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
 		this.setVariableDefinitions(getVariableDefinitions(this.state))
@@ -101,10 +101,10 @@ class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 				getActionDefinitions({
 					api: this.api,
 					state: this.state,
-					refresh: () => this.refresh(),
+					refresh: async () => this.refresh(),
 					log: (level, message) => this.log(level, message),
 					setStatus: (status, message) => this.updateStatus(status, message),
-				})
+				}),
 			)
 			this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
 			this.setVariableDefinitions(getVariableDefinitions(this.state))
