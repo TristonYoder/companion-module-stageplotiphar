@@ -1,5 +1,6 @@
 import type { StagePlotipharApi } from './api'
-import type { Hardware, HardwareItem, Layout, MicBoard, Person, Role, Screen, StageEvent } from './types'
+import type { Hardware, HardwareItem, Layout, MicBoard, Person, Role, Screen, ScreenTypeChoice, StageEvent } from './types'
+import { FALLBACK_SCREEN_TYPES } from './types'
 
 export function hardwareItemLabel(hardware: Hardware, item: HardwareItem): string {
 	const type = hardware.types.find((t) => t.id === item.typeId)
@@ -90,6 +91,11 @@ export class ModuleState {
 	hardware: Hardware = { types: [], items: [] }
 	people: Record<string, Person> = {}
 
+	// Pulled from the server each refresh so a newly added view type shows up
+	// in the dropdowns without a module release. Seeded with the fallback so
+	// definitions built before the first refresh are never empty.
+	screenTypes: ScreenTypeChoice[] = FALLBACK_SCREEN_TYPES
+
 	// Positions/hardware for whichever event is currently tracked for
 	// variables (see trackedEventId). Kept separate from `events` because
 	// resolving positions requires an extra layout fetch per refresh.
@@ -116,13 +122,14 @@ export class ModuleState {
 	constructor(private api: StagePlotipharApi) {}
 
 	async refreshAll(): Promise<void> {
-		const [screens, events, micboards, roles, hardware, people] = await Promise.all([
+		const [screens, events, micboards, roles, hardware, people, screenTypes] = await Promise.all([
 			this.api.listScreens(),
 			this.api.listEvents(),
 			this.api.listMicBoards(),
 			this.api.listRoles(),
 			this.api.getHardware(),
 			this.api.listPeople(),
+			this.api.listScreenTypes(),
 		])
 		this.screens = screens
 		this.events = events
@@ -130,6 +137,8 @@ export class ModuleState {
 		this.roles = roles
 		this.hardware = hardware
 		this.people = people
+		// null = server predates /api/screen-types; keep the fallback list.
+		this.screenTypes = screenTypes ?? FALLBACK_SCREEN_TYPES
 
 		// First-load (and any-refresh-until-a-choice-is-made) default: track
 		// whichever event is soonest without having already passed. Once
@@ -265,6 +274,13 @@ export class ModuleState {
 	eventDate(eventId: string | undefined): string {
 		if (!eventId) return ''
 		return this.events.find((e) => e.id === eventId)?.date ?? ''
+	}
+
+	// Falls back to the raw id so a type the server added but this module has
+	// not yet seen still renders something meaningful rather than blank.
+	screenTypeLabel(id: string | undefined): string {
+		if (!id) return ''
+		return this.screenTypes.find((t) => t.id === id)?.label ?? id
 	}
 
 	micboardName(micboardId: string | undefined): string {

@@ -2,12 +2,14 @@ import type { CompanionFeedbackDefinitions } from '@companion-module/base'
 import type { StagePlotipharApi } from './api'
 import type { ModuleState } from './state'
 import { combineRgb } from '@companion-module/base'
-import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharApi): CompanionFeedbackDefinitions {
 	const screenChoices = () => state.screens.map((s) => ({ id: s.id, label: s.name }))
 	const eventChoices = () => state.events.map((e) => ({ id: e.id, label: `${e.date} — ${e.title}` }))
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
+	// Server-driven (GET /api/screen-types), refreshed on every poll — a view
+	// type added server-side appears here without a module release.
+	const templateChoices = () => state.screenTypes.map((t) => ({ id: t.id, label: t.label }))
 	const hardwareTypeChoices = () => state.hardware.types.map((t) => ({ id: t.id, label: t.name }))
 	const positionChoices = () => state.allPositions.map((p) => ({ id: p.positionId, label: p.roleName }))
 	const roleChoices = () => state.allRoles.map((r) => ({ id: r.roleId, label: r.roleName }))
@@ -47,7 +49,7 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			defaultStyle: { bgcolor: combineRgb(0, 153, 0), color: combineRgb(255, 255, 255) },
 			options: [
 				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'template', label: 'Template', choices: SCREEN_TEMPLATE_CHOICES, default: SCREEN_TEMPLATE_CHOICES[0].id },
+				{ type: 'dropdown', id: 'template', label: 'Template', choices: templateChoices(), default: templateChoices()[0]?.id ?? '' },
 			],
 			callback: (feedback) => {
 				const screen = state.screens.find((s) => s.id === feedback.options.screenId)

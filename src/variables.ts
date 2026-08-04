@@ -1,9 +1,8 @@
 import type { CompanionVariableDefinition, CompanionVariableValues } from '@companion-module/base'
 import { getHardwareSlugs, getPositionSlugs, getRoleSlugs, hardwareItemLabel, type ModuleState } from './state'
-import { SCREEN_TEMPLATE_CHOICES } from './types'
 
-function templateLabel(id: string): string {
-	return SCREEN_TEMPLATE_CHOICES.find((t) => t.id === id)?.label ?? id
+function templateLabel(state: ModuleState, id: string): string {
+	return state.screenTypeLabel(id)
 }
 
 export function getVariableDefinitions(state: ModuleState): CompanionVariableDefinition[] {
@@ -60,7 +59,7 @@ export function getVariableValues(state: ModuleState): CompanionVariableValues {
 	for (const screen of state.screens) {
 		values[`screen_${screen.id}_event_title`] = state.eventTitle(screen.currentEventId)
 		values[`screen_${screen.id}_micboard_name`] = state.micboardName(screen.micboardId)
-		values[`screen_${screen.id}_template`] = templateLabel(screen.type)
+		values[`screen_${screen.id}_template`] = templateLabel(state, screen.type)
 	}
 
 	values['upcoming_event_id'] = state.nearestUpcomingEvent?.id ?? ''

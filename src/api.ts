@@ -1,5 +1,5 @@
 import type { ModuleConfig, ModuleSecrets } from './config'
-import type { Hardware, Layout, MicBoard, Person, Role, Screen, StageEvent, Venue } from './types'
+import type { Hardware, Layout, MicBoard, Person, Role, Screen, ScreenTypeChoice, StageEvent, Venue } from './types'
 
 export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 
@@ -110,6 +110,19 @@ export class StagePlotipharApi {
 
 	listScreens(): Promise<Screen[]> {
 		return this.request('/api/screens')
+	}
+
+	// Returns null (rather than throwing) when the server predates
+	// /api/screen-types, so the caller can fall back to FALLBACK_SCREEN_TYPES
+	// instead of failing the whole refresh over an optional capability.
+	async listScreenTypes(): Promise<ScreenTypeChoice[] | null> {
+		try {
+			const res = await this.request<{ screenTypes: ScreenTypeChoice[] }>('/api/screen-types')
+			return Array.isArray(res?.screenTypes) && res.screenTypes.length > 0 ? res.screenTypes : null
+		} catch (err) {
+			if (err instanceof ApiError && err.status === 404) return null
+			throw err
+		}
 	}
 
 	updateScreen(id: string, patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type'>>): Promise<Screen> {

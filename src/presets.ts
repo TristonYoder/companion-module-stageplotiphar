@@ -1,6 +1,5 @@
 import { combineRgb, type CompanionPresetDefinitions } from '@companion-module/base'
 import { getHardwareSlugs, getPositionSlugs, getRoleSlugs, hardwareItemLabel, type ModuleState } from './state'
-import { SCREEN_TEMPLATE_CHOICES } from './types'
 
 const GREEN = combineRgb(0, 153, 0)
 const BLUE = combineRgb(0, 78, 153)
@@ -113,7 +112,7 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			feedbacks: [],
 		}
 
-		for (const template of SCREEN_TEMPLATE_CHOICES) {
+		for (const template of state.screenTypes) {
 			presets[`screenTemplate_${screen.id}_${template.id}`] = {
 				type: 'button',
 				category: 'Screen Templates',

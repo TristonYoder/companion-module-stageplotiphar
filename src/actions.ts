@@ -1,13 +1,47 @@
 import type { CompanionActionDefinitions } from '@companion-module/base'
-import type { StagePlotipharApi } from './api'
+import { InstanceStatus } from '@companion-module/base'
+import { ApiError, type StagePlotipharApi } from './api'
 import type { ModuleState } from './state'
-import { SCREEN_TEMPLATE_CHOICES, type StageEvent } from './types'
+import type { StageEvent } from './types'
 
 export interface ActionDeps {
 	api: StagePlotipharApi
 	state: ModuleState
 	refresh: () => Promise<void>
 	log: (level: 'info' | 'warn' | 'error', message: string) => void
+	setStatus: (status: InstanceStatus, message?: string) => void
+}
+
+// Companion swallows a rejected action callback into a generic unhandled
+// -rejection log: the button appears to work, and the module keeps reporting
+// Ok. That hides the two failures an operator most needs to see mid-show — a
+// revoked API key (401) and a lapsed billing entitlement (402, which the
+// server raises on mutating requests only, so a GET-only poll never surfaces
+// it). Wrapping every callback here rather than hand-writing try/catch per
+// action means a new action can't forget to do it.
+function guardCallbacks(defs: CompanionActionDefinitions, deps: ActionDeps): CompanionActionDefinitions {
+	const guarded: CompanionActionDefinitions = {}
+	for (const [id, def] of Object.entries(defs)) {
+		if (!def) continue
+		const original = def.callback.bind(def)
+		guarded[id] = {
+			...def,
+			callback: async (event, context) => {
+				try {
+					return await original(event, context)
+				} catch (err) {
+					if (err instanceof ApiError && err.status === 401) {
+						deps.setStatus(InstanceStatus.AuthenticationFailure, err.message)
+					} else if (err instanceof ApiError && err.status === 402) {
+						deps.setStatus(InstanceStatus.UnknownWarning, 'Billing entitlement lapsed — changes are rejected until the subscription is renewed')
+					}
+					deps.log('error', `${def.name} failed: ${err instanceof Error ? err.message : String(err)}`)
+					return undefined
+				}
+			},
+		}
+	}
+	return guarded
 }
 
 function neighborEvent(sorted: StageEvent[], currentId: string | undefined, direction: 'next' | 'previous'): StageEvent | undefined {
@@ -18,12 +52,16 @@ function neighborEvent(sorted: StageEvent[], currentId: string | undefined, dire
 	return sorted[(currentIndex + step + sorted.length) % sorted.length]
 }
 
-export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): CompanionActionDefinitions {
+export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitions {
+	const { api, state, refresh, log } = deps
 	const screenChoices = () => state.screens.map((s) => ({ id: s.id, label: s.name }))
 	const eventChoices = () => state.events.map((e) => ({ id: e.id, label: `${e.date} — ${e.title}` }))
 	const micboardChoices = () => state.micboards.map((m) => ({ id: m.id, label: m.name }))
+	// Server-driven (GET /api/screen-types), refreshed on every poll — a view
+	// type added server-side appears here without a module release.
+	const templateChoices = () => state.screenTypes.map((t) => ({ id: t.id, label: t.label }))
 
-	return {
+	const definitions: CompanionActionDefinitions = {
 		setScreenEvent: {
 			name: 'Set Screen Event',
 			options: [
@@ -56,11 +94,11 @@ export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): 
 			name: 'Set Screen Template',
 			options: [
 				{ type: 'dropdown', id: 'screenId', label: 'Screen', choices: screenChoices(), default: screenChoices()[0]?.id ?? '' },
-				{ type: 'dropdown', id: 'template', label: 'Template', choices: SCREEN_TEMPLATE_CHOICES, default: SCREEN_TEMPLATE_CHOICES[0].id },
+				{ type: 'dropdown', id: 'template', label: 'Template', choices: templateChoices(), default: templateChoices()[0]?.id ?? '' },
 			],
 			callback: async (event) => {
 				const screenId = String(event.options.screenId)
-				const template = event.options.template as (typeof SCREEN_TEMPLATE_CHOICES)[number]['id']
+				const template = String(event.options.template)
 				await api.updateScreen(screenId, { type: template })
 				await refresh()
 			},
@@ -199,4 +237,6 @@ export function getActionDefinitions({ api, state, refresh, log }: ActionDeps): 
 			},
 		},
 	}
+
+	return guardCallbacks(definitions, deps)
 }

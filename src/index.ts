@@ -33,6 +33,7 @@ class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 				state: this.state,
 				refresh: () => this.refresh(),
 				log: (level, message) => this.log(level, message),
+				setStatus: (status, message) => this.updateStatus(status, message),
 			})
 		)
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
@@ -102,6 +103,7 @@ class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 					state: this.state,
 					refresh: () => this.refresh(),
 					log: (level, message) => this.log(level, message),
+					setStatus: (status, message) => this.updateStatus(status, message),
 				})
 			)
 			this.setFeedbackDefinitions(getFeedbackDefinitions(this.state, this.api))
