@@ -1,0 +1,79 @@
+name: Sync Version From Server
+
+# Keeps this module's version equal to the StagePlotiphar server's.
+#
+# Push, not pull: stagePlotiphar is a private repo, so pulling its VERSION
+# would mean giving this repo's CI a cross-repo token, and its default branch
+# lags the released version anyway. The server sends the number it just
+# released; this workflow applies it and opens a PR for review rather than
+# committing to main unattended.
+#
+# Server side sends:
+#   gh api repos/TristonYoder/companion-module-stageplotiphar/dispatches \
+#     -f event_type=server-version-released \
+#     -F client_payload[version]="$(cat VERSION)"
+
+on:
+  repository_dispatch:
+    types: [server-version-released]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to apply (x.y.z)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Resolve target version
+        id: target
+        run: |
+          VERSION="${{ github.event.client_payload.version || inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            echo "No version supplied by dispatch payload or input" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Exits non-zero on an attempted downgrade, which fails the job rather
+      # than silently retargeting a version that is already published.
+      - name: Apply version
+        run: node scripts/sync-version.mjs "${{ steps.target.outputs.version }}"
+
+      - name: Sync lockfile version
+        run: npm install --package-lock-only
+
+      - name: Verify the module still builds at the new version
+        run: |
+          npm ci
+          npm run build
+          npm run check-version
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/sync-version-${{ steps.target.outputs.version }}
+          base: main
+          title: 'chore: sync version to ${{ steps.target.outputs.version }}'
+          body: |
+            Automated by `.github/workflows/sync-version.yml`, triggered by the
+            StagePlotiphar server releasing `${{ steps.target.outputs.version }}`.
+
+            Updates `package.json`, `companion/manifest.json` and the lockfile so the
+            module reports the same version as the server it talks to.
+            `companion/manifest.json` is the one Companion shows users.
+          commit-message: 'chore: sync version to ${{ steps.target.outputs.version }}'
+          delete-branch: true

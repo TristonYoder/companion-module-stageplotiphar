@@ -1,6 +1,6 @@
 {
 	"name": "companion-module-stageplotiphar",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"main": "dist/index.js",
 	"license": "MIT",
 	"private": true,
@@ -8,7 +8,9 @@
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"lint": "eslint src",
-		"test:contract": "node --test contract/*.test.mjs"
+		"test:contract": "node --test contract/*.test.mjs",
+		"sync-version": "node scripts/sync-version.mjs",
+		"check-version": "node scripts/sync-version.mjs --check"
 	},
 	"dependencies": {
 		"@companion-module/base": "^1.11.2"
