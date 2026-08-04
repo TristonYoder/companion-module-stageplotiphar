@@ -56,13 +56,27 @@ export interface MicBoard {
 	name: string
 }
 
-export type ScreenTemplate = 'stageplot' | 'micboard' | 'assignments' | 'agario'
+// Server-driven: the authoritative list comes from GET /api/screen-types, so a
+// server that gains a view type exposes it without a module release. Kept as a
+// plain string rather than a union for exactly that reason — pinning a union
+// here is what let this list silently drift out of date before.
+export type ScreenTemplate = string
 
-export const SCREEN_TEMPLATE_CHOICES: { id: ScreenTemplate; label: string }[] = [
+export interface ScreenTypeChoice {
+	id: ScreenTemplate
+	label: string
+}
+
+// Only used when the server doesn't answer /api/screen-types — i.e. a server
+// older than the release that added it. Mirrors that server's list at the time
+// of writing so an older pairing still gets working dropdowns rather than
+// empty ones.
+export const FALLBACK_SCREEN_TYPES: ScreenTypeChoice[] = [
 	{ id: 'stageplot', label: 'Stage Plot' },
+	{ id: 'stageplot-invert', label: 'Stage Plot (Invert)' },
 	{ id: 'micboard', label: 'MicBoard' },
-	{ id: 'assignments', label: 'Assignments' },
-	{ id: 'agario', label: 'Agario' },
+	{ id: 'assignments', label: 'Assignments Sheet' },
+	{ id: 'agario', label: 'Agario View' },
 ]
 
 export interface Screen {
