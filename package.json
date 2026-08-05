@@ -9,6 +9,7 @@
 		"dev": "tsc -p tsconfig.build.json --watch",
 		"lint": "eslint src",
 		"test:contract": "node --test contract/*.test.mjs",
+		"test:unit": "node --test unit/*.test.mjs",
 		"sync-version": "node scripts/sync-version.mjs",
 		"check-version": "node scripts/sync-version.mjs --check"
 	},
