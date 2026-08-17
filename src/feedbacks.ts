@@ -93,6 +93,25 @@ export function getFeedbackDefinitions(state: ModuleState, api: StagePlotipharAp
 			},
 		},
 
+		screenIsHidden: {
+			type: 'boolean',
+			name: 'Screen Is Hidden (Blackout)',
+			defaultStyle: { bgcolor: combineRgb(204, 0, 0), color: combineRgb(255, 255, 255) },
+			options: [
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+			],
+			callback: (feedback) => {
+				const screen = state.screens.find((s) => s.id === feedback.options.screenId)
+				return !!screen?.hidden
+			},
+		},
+
 		trackedPositionFilled: {
 			type: 'boolean',
 			name: 'Tracked Position Is Filled',

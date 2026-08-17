@@ -82,6 +82,12 @@ export const FALLBACK_SCREEN_TYPES: ScreenTypeChoice[] = [
 export interface Screen {
 	id: string
 	name: string
+	// Blackout, toggled from the server's Control Room — content stays
+	// exactly where it was (currentEventId/type/etc untouched), the screen
+	// just renders black instead. Optional so a pairing against an older
+	// server (which never sends this field at all) reads it as `undefined`,
+	// same falsy-as-visible default the server itself uses.
+	hidden?: boolean
 	type: ScreenTemplate
 	currentEventId?: string
 	micboardId?: string

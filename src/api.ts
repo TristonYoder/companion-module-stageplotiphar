@@ -127,7 +127,7 @@ export class StagePlotipharApi {
 
 	async updateScreen(
 		id: string,
-		patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type'>>,
+		patch: Partial<Pick<Screen, 'currentEventId' | 'micboardId' | 'type' | 'hidden'>>,
 	): Promise<Screen> {
 		return this.request(`/api/screens/${encodeURIComponent(id)}`, {
 			method: 'PUT',
