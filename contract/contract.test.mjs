@@ -61,7 +61,7 @@ before(async () => {
 		(await post(
 			'/api/layouts',
 			{ name: 'Contract Layout', positions: [{ id: randomUUID(), roleId: role.id, x: 10, y: 20 }] },
-			q
+			q,
 		))
 
 	const events = await (
@@ -205,6 +205,23 @@ describe('writes the module performs', () => {
 		assert.equal(updated.id, screen.id, 'updateScreen must return the updated screen')
 		assert.equal(updated.type, screen.type)
 		assert.equal(typeof updated.name, 'string')
+	})
+
+	test('updateScreen round-trips hidden (Control Room blackout)', async () => {
+		const [screen] = await api.listScreens()
+		const original = !!screen.hidden
+
+		try {
+			const hiddenScreen = await api.updateScreen(screen.id, { hidden: !original })
+			assert.equal(hiddenScreen.hidden, !original, 'updateScreen must persist and return the new hidden value')
+
+			const restored = await api.updateScreen(screen.id, { hidden: original })
+			assert.equal(restored.hidden, original, 'updateScreen must be able to clear hidden back to its prior value')
+		} finally {
+			// Best-effort restore even if an assertion above threw, so this test
+			// is safe to run repeatedly and against a populated dev database.
+			await api.updateScreen(screen.id, { hidden: original }).catch(() => {})
+		}
 	})
 })
 

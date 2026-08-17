@@ -147,6 +147,38 @@ export function getActionDefinitions(deps: ActionDeps): CompanionActionDefinitio
 			},
 		},
 
+		setScreenVisibility: {
+			name: 'Set Screen Visibility',
+			options: [
+				{
+					type: 'dropdown',
+					id: 'screenId',
+					label: 'Screen',
+					choices: screenChoices(),
+					default: screenChoices()[0]?.id ?? '',
+				},
+				{
+					type: 'dropdown',
+					id: 'visibility',
+					label: 'Visibility',
+					choices: [
+						{ id: 'show', label: 'Show' },
+						{ id: 'hide', label: 'Hide (blackout)' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+					default: 'toggle',
+				},
+			],
+			callback: async (event) => {
+				const screenId = String(event.options.screenId)
+				const visibility = event.options.visibility
+				const hidden =
+					visibility === 'toggle' ? !state.screens.find((s) => s.id === screenId)?.hidden : visibility === 'hide'
+				await api.updateScreen(screenId, { hidden })
+				await refresh()
+			},
+		},
+
 		advanceScreenEvent: {
 			name: 'Advance Screen To Next/Previous Event',
 			options: [

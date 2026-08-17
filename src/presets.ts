@@ -128,6 +128,26 @@ export function getPresetDefinitions(state: ModuleState): CompanionPresetDefinit
 			feedbacks: [],
 		}
 
+		presets[`screenVisibility_${screen.id}`] = {
+			type: 'button',
+			category: 'Screens',
+			name: `${screen.name}: Toggle Visibility`,
+			style: { text: `${screen.name}\nBlackout`, size: '14', color: WHITE, bgcolor: GREY },
+			steps: [
+				{
+					down: [{ actionId: 'setScreenVisibility', options: { screenId: screen.id, visibility: 'toggle' } }],
+					up: [],
+				},
+			],
+			feedbacks: [
+				{
+					feedbackId: 'screenIsHidden',
+					options: { screenId: screen.id },
+					style: { bgcolor: combineRgb(204, 0, 0) },
+				},
+			],
+		}
+
 		for (const template of state.screenTypes) {
 			presets[`screenTemplate_${screen.id}_${template.id}`] = {
 				type: 'button',
