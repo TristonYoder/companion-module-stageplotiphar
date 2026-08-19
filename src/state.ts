@@ -1,4 +1,4 @@
-import type { StagePlotipharApi } from './api'
+import { ApiError, type StagePlotipharApi } from './api'
 import type {
 	Hardware,
 	HardwareItem,
@@ -129,7 +129,12 @@ export class ModuleState {
 		return this.roles.map((r) => ({ roleId: r.id, roleName: r.name }))
 	}
 
-	constructor(private api: StagePlotipharApi) {}
+	// Optional — lets callers surface a warning when an event references a
+	// layout that no longer exists on the server (see getLayoutCached).
+	constructor(
+		private api: StagePlotipharApi,
+		private log?: (level: 'warn', message: string) => void,
+	) {}
 
 	async refreshAll(): Promise<void> {
 		const [screens, events, micboards, roles, hardware, people, screenTypes] = await Promise.all([
@@ -165,17 +170,30 @@ export class ModuleState {
 		}
 	}
 
-	private async getLayoutCached(layoutId: string): Promise<Layout> {
+	// Returns null (after logging a warning) if the layout id is stale — e.g.
+	// an event still references a layout that's since been deleted server-side.
+	// A single dangling reference shouldn't take the whole module offline.
+	private async getLayoutCached(layoutId: string): Promise<Layout | null> {
 		const cached = this.layoutsById.get(layoutId)
 		if (cached) return cached
-		const layout = await this.api.getLayout(layoutId)
-		this.layoutsById.set(layoutId, layout)
-		return layout
+		try {
+			const layout = await this.api.getLayout(layoutId)
+			this.layoutsById.set(layoutId, layout)
+			return layout
+		} catch (err) {
+			if (err instanceof ApiError && err.status === 404) {
+				this.log?.('warn', `Layout ${layoutId} not found (deleted?) — skipping`)
+				return null
+			}
+			throw err
+		}
 	}
 
 	private async refreshAllPositions(): Promise<void> {
 		const layoutIds = [...new Set(this.events.map((e) => e.layoutId).filter(Boolean))]
-		const layouts = await Promise.all(layoutIds.map(async (id) => this.getLayoutCached(id)))
+		const layouts = (await Promise.all(layoutIds.map(async (id) => this.getLayoutCached(id)))).filter(
+			(layout): layout is Layout => layout !== null,
+		)
 
 		const seen = new Set<string>()
 		const positions: PositionRef[] = []
@@ -255,6 +273,10 @@ export class ModuleState {
 		}
 
 		const layout = await this.getLayoutCached(event.layoutId)
+		if (!layout) {
+			this.trackedPositions = []
+			return
+		}
 		this.trackedPositions = layout.positions.map((pos) => {
 			const override = event.positionOverrides.find((o) => o.positionId === pos.id)
 			const effectiveRoleId = override?.roleId ?? pos.roleId

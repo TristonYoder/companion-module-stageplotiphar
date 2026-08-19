@@ -25,7 +25,7 @@ class StagePlotipharInstance extends InstanceBase<ModuleConfig, ModuleSecrets> {
 		this.config = config
 		this.secrets = secrets
 		this.api = new StagePlotipharApi(() => ({ ...this.config, ...this.secrets }))
-		this.state = new ModuleState(this.api)
+		this.state = new ModuleState(this.api, (level, message) => this.log(level, message))
 
 		this.setActionDefinitions(
 			getActionDefinitions({
