@@ -3,6 +3,17 @@ import type { Hardware, Layout, MicBoard, Person, Role, Screen, ScreenTypeChoice
 
 export type ResolvedApiConfig = ModuleConfig & ModuleSecrets
 
+// Planning Center serves an auto-generated initials placeholder for people with
+// no uploaded photo, at URLs like
+//   https://avatars.planningcenteronline.com/uploads/initials/JD.png?g=224x224%23
+// Kept byte-compatible with the server's isPcoInitialsUrl (src/lib/imgSrc.ts) so
+// the module and the web app agree on what counts as "no photo".
+const PCO_INITIALS_PREFIX = 'https://avatars.planningcenteronline.com/uploads/initials/'
+
+export function isPcoInitialsUrl(value: string | null | undefined): boolean {
+	return typeof value === 'string' && value.startsWith(PCO_INITIALS_PREFIX)
+}
+
 export class ApiError extends Error {
 	constructor(
 		public status: number,
@@ -85,6 +96,14 @@ export class StagePlotipharApi {
 	// requires our auth header) or a full http(s) URL from a synced PCO
 	// avatar (fetched as-is, no auth needed or wanted for an external host).
 	async getPersonImageDataUri(image: string): Promise<string | null> {
+		// Mirrors the server's isPcoInitialsUrl (src/lib/imgSrc.ts): Planning
+		// Center auto-generates a grey initials placeholder for people with no
+		// real photo. The web app skips those and draws its own initials avatar;
+		// without this the module would happily paint PCO's generic placeholder
+		// onto a button, which looks like a broken photo rather than no photo.
+		// Returning null lets the caller fall back to its normal rendering.
+		if (isPcoInitialsUrl(image)) return null
+
 		const cached = this.imageDataUriCache.get(image)
 		if (cached) return cached
 
