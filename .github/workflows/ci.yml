@@ -22,5 +22,8 @@ jobs:
       # package.json said 0.2.3.
       - run: npm run check-version
       - run: npm run build
+      # Pure unit tests — no server needed, unlike contract/, which the
+      # StagePlotiphar repo runs against its own build.
+      - run: npm run test:unit
       - run: npx companion-module-check
       - run: npx companion-module-build
