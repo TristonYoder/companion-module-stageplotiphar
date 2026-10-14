@@ -12,6 +12,19 @@ export class ApiError extends Error {
 	}
 }
 
+// Server errors often return a full HTML error page. Only surface a short,
+// human-readable message for JSON responses, and never dump the raw body.
+function parseErrorDetail(contentType: string, body: string): string {
+	if (!body || !contentType.includes('application/json')) return ''
+	try {
+		const parsed = JSON.parse(body)
+		const message = parsed?.error ?? parsed?.message
+		return typeof message === 'string' ? message.slice(0, 200) : ''
+	} catch {
+		return ''
+	}
+}
+
 export class StagePlotipharApi {
 	// Keyed by the Person.image value (filename or URL) — photos rarely
 	// change mid-show, and re-fetching/re-encoding on every feedback
@@ -40,7 +53,9 @@ export class StagePlotipharApi {
 
 		if (!res.ok) {
 			const body = await res.text().catch(() => '')
-			throw new ApiError(res.status, `${init?.method ?? 'GET'} ${path} failed: ${res.status} ${body}`)
+			const detail = parseErrorDetail(res.headers.get('content-type') ?? '', body)
+			const suffix = detail ? `: ${detail}` : ''
+			throw new ApiError(res.status, `${init?.method ?? 'GET'} ${path} failed: ${res.status}${suffix}`)
 		}
 
 		if (res.status === 204) return undefined as T
